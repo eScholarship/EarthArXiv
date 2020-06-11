@@ -5,6 +5,6 @@ This repository exists to help organize the work of migrating the [EarthArXiv](h
 
 ## Related links
 
-* [EarthArxiv-preprints Branch in the CDL fork of Janeway](https://github.com/eScholarship/EarthArXiv), used for this project's code
+* [EarthArxiv-preprints Branch in the CDL fork of Janeway](https://github.com/eScholarship/janeway/tree/eartharxiv-preprints), used for this project's code
 * [Press Release: EarthArXiv announces new partnership with California Digital Library to host earth sciences preprint service](https://osc.universityofcalifornia.edu/2020/05/eartharxiv-announces-new-partnership-with-cdl/)
 * [Loomio forum for EarthArXiv-related discussions](https://t.co/F0glXZn0Gh?amp=1)
