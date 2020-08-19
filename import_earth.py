@@ -78,9 +78,9 @@ class License:
 ############################################################
 
 class Subjects:
-    lastId = None
+    arr = {}
     def __init__(self, data):
-        self.arr = []
+        self.arr = {}
         #print(datastr)
         #data = json.loads(datastr)
         # get subject out of attributes
@@ -89,13 +89,16 @@ class Subjects:
 
     def extractData(self, data):
         for i in range(len(data)):
-            self.lastId = None
+            prev = None
             for j in range(len(data[i])):
                 if data[i][j].get('text') is not None:
                     #self.arr.append(data[i][j]['text'])
                     subject = data[i][j]['text']
-                    result = repository_models.Subject.objects.get_or_create(name=subject, repository_id=1, parent_id=self.lastId, defaults={'slug':slugify(subject)})[0]
-                    self.lastId = result.id
+                    result = repository_models.Subject.objects.get_or_create(name=subject, repository_id=1, parent_id=prev, defaults={'slug':slugify(subject)})[0]
+                    prev = result.id
+                    if result.id not in self.arr:
+                        self.arr[result.id] = result
+
 
 
 ############################################################
@@ -340,71 +343,8 @@ class VersionFiles:
                 print("save submission and version info here")
                 # get the file and version ids from the current version and attach to pp
                 pp.submission_file_id = self.arr[i].pf.id
-                pp.curent_version_id = self.arr[i].pv.id
+                #pp.curent_version_id = self.arr[i].pv.id
 
-############################################################
-
-class PrimaryFile:
-    d="2000-01-01T11:11:11.12345"
-    #f="%Y-%m-%d %H:%M:%S"
-    f="%Y-%m-%dT%H:%M:%S+00:00"
-    fi="%Y-%m-%dT%H:%M:%S.%fZ"
-    #extract file info
-    osfId=""
-    name=""
-    size=0
-    dateCreated="" 
-    dateModified=""
-    downloadLink=""
-    fileext="pdf"
-    downloads=0
-    current_version=1
-    pf = None
-    pv = None
-    def __init__(self, data, pp):
-        print("extract primary file here")
-        if not (data.get("data") is None):
-            self.extractData(data["data"])
-            self.saveFile(pp)
-
-    def saveFile(self, pp):
-        if len(self.downloadLink) > 10:
-            ext = os.path.splitext(self.name)
-            savename = self.osfId + ext[1]
-            repoPath = os.path.join('repos', str(pp.id), savename)
-            downloadPath = os.path.join(django_settings.BASE_DIR, 'files', 'repos', str(pp.id))
-            #save using the download link
-            #self.downloadFile(downloadPath, savename)
-            mime = 'application/pdf'
-            if ext[1] != '.pdf':
-                mime = 'application/msword'
-            self.pf = repository_models.PreprintFile.objects.get_or_create(file=repoPath, defaults={'original_filename':self.name,'uploaded':self.dateCreated, 
-                                                                                                    'mime_type':mime, 'size':self.size, 'preprint_id':pp.id })[0]
-            pp.submission_file_id = self.pf.id
-            self.pv = repository_models.PreprintVersion.objects.get_or_create(file_id=self.pf.id, preprint_id=pp.id, defaults={'version':self.current_version, 'date_time': self.dateModified})[0]
-            pp.curent_version_id = self.pv.id
-
-    def downloadFile(self, path, name):
-        if not os.path.exists(path):
-            os.makedirs(path)
-        savepath = os.path.join(path, name)
-        response = urllib.request.urlretrieve(self.downloadLink, savepath)
-
-    def extractData(self,data):
-        self.osfId=data['id']
-        self.name=data['attributes']['name'].replace('\'','')
-        self.size=data['attributes']['size']
-        self.dateCreated=data['attributes']['date_created'] or self.d
-        self.dateModified=data['attributes']['date_modified'] or self.d
-        
-        self.dateCreated = datetime.datetime.strptime(self.dateCreated, self.fi).strftime(self.f)
-        self.dateModified = datetime.datetime.strptime(self.dateModified, self.fi).strftime(self.f)
-        self.downloads = data['attributes']['extra']['downloads']
-        self.current_version = data['attributes']['current_version']
-        self.downloadLink=data['links']['download']
-        #extract extension from name
-        #folder_structure = os.path.join(settings.BASE_DIR, 'files', 'articles', str(article.id))
-        #path = os.path.join('repos', str(instance.preprint.pk), uuid_filename)
 
 ############################################################
 
@@ -427,11 +367,11 @@ class Worker:
                 pp = self.getArticle(a, licId)
                 #file = self.getPrimaryFile(a, pp)
                 files = self.getAllVersions(a, pp)
-                subId1 = self.getSubjects(a)
+                self.getSubjects(a, pp)
                 self.getTags(a, pp)
                 auths = self.getAuthors(a, pp)
                 pp.owner_id = auths.owner
-                pp.subject_id = subId1
+                #pp.subject_id = subId1
                 if files is None:
                     pp.date_accepted = None
                     pp.date_published = None
@@ -465,9 +405,11 @@ class Worker:
                 pp.keywords.add(result)
 
     #pass article so that connections can be done here
-    def getSubjects(self, a): 
+    def getSubjects(self, a, pp): 
         subs = Subjects(a.attr)
-        return subs.lastId
+        for x in subs.arr:
+            if pp.subject.filter(pk=x).exists() is False:
+                pp.subject.add(subs.arr[x])
 
     #pass article so that connections can be done here
     def getAuthors(self, a, pp): 
