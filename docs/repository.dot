@@ -1,0 +1,1165 @@
+digraph model_graph {
+  // Dotfile by Django-Extensions graph_models
+  // Created: 2020-08-31 16:04
+  // Cli Options: repository
+
+  fontname = "Roboto"
+  fontsize = 8
+  splines  = true
+
+  node [
+    fontname = "Roboto"
+    fontsize = 8
+    shape = "plaintext"
+  ]
+
+  edge [
+    fontname = "Roboto"
+    fontsize = 8
+  ]
+
+  // Labels
+
+
+  core_model_utils_AbstractSiteModel [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#000000">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    AbstractSiteModel
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">domain</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">is_secure</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">BooleanField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  repository_models_Repository [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#000000">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    Repository<BR/>&lt;<FONT FACE="Roboto"><I>AbstractSiteModel</I></FONT>&gt;
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>press</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">about</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">accept_version</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">custom_js_code</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">decline</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">decline_version</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><I>domain</I></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><I>CharField</I></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto"><I>is_secure</I></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto"><I>BooleanField</I></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">limit_upload_to_pdf</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">BooleanField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">live</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">BooleanField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">logo</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">ImageField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">name</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">new_comment</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">object_name</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">object_name_plural</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">publication</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">publisher</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">random_homepage_preprints</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">BooleanField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">short_name</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">start</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">submission</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  repository_models_RepositoryField [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#000000">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    RepositoryField
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>repository</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">choices</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">dc_metadata_type</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">display</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">BooleanField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">help_text</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">input_type</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">name</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">order</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">IntegerField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">required</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">BooleanField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  repository_models_RepositoryFieldAnswer [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#000000">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    RepositoryFieldAnswer
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto"><B>field</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>preprint</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">answer</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  repository_models_Preprint [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#000000">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    Preprint
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto"><B>license</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>owner</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>repository</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto"><B>submission_file</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">abstract</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">comments_editor</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">current_step</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">IntegerField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">date_accepted</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">DateTimeField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">date_declined</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">DateTimeField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">date_published</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">DateTimeField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">date_started</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">DateTimeField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">date_submitted</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">DateTimeField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">date_updated</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">DateTimeField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">doi</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">meta_image</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">ImageField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">preprint_decision_notification</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">BooleanField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">stage</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">title</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  repository_models_PreprintFile [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#000000">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    PreprintFile
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>preprint</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">file</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">FileField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">mime_type</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">original_filename</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">size</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">PositiveIntegerField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">uploaded</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">DateTimeField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  repository_models_PreprintAccess [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#000000">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    PreprintAccess
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto"><B>country</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto"><B>file</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>preprint</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">accessed</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">DateTimeField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">identifier</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  repository_models_PreprintAuthor [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#000000">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    PreprintAuthor
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>author</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>preprint</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">order</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">PositiveIntegerField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  repository_models_Author [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#000000">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    Author
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">affiliation</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">email_address</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">EmailField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">first_name</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">last_name</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">middle_name</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">orcid</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  repository_models_PreprintVersion [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#000000">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    PreprintVersion
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>file</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto"><B>moderated_version</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>preprint</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">date_time</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">DateTimeField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">version</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">IntegerField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  repository_models_Comment [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#000000">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    Comment
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>author</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>preprint</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto"><B>reply_to</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">body</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">TextField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">date_time</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">DateTimeField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">is_public</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">BooleanField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">is_reviewed</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">BooleanField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  repository_models_Subject [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#000000">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    Subject
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto"><B>parent</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>repository</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">enabled</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">BooleanField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">name</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">slug</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">SlugField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+  repository_models_VersionQueue [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#000000">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    VersionQueue
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>file</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>preprint</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">approved</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">BooleanField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#000000" FACE="Roboto">date_decision</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#000000" FACE="Roboto">DateTimeField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">date_submitted</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">DateTimeField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">update_type</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+
+
+
+
+  // Relations
+  press_models_Press [label=<
+  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#000000">
+  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Press</FONT>
+  </TD></TR>
+  </TABLE>
+  >]
+  repository_models_Repository -> press_models_Press
+  [label=" press (repository)"] [arrowhead=none, arrowtail=dot, dir=both];
+  core_models_Account [label=<
+  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#000000">
+  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Account</FONT>
+  </TD></TR>
+  </TABLE>
+  >]
+  repository_models_Repository -> core_models_Account
+  [label=" managers (repository)"] [arrowhead=dot arrowtail=dot, dir=both];
+  submission_models_Article [label=<
+  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#000000">
+  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Article</FONT>
+  </TD></TR>
+  </TABLE>
+  >]
+  repository_models_Repository -> submission_models_Article
+  [label=" homepage_preprints (repository)"] [arrowhead=dot arrowtail=dot, dir=both];
+
+  repository_models_RepositoryField -> repository_models_Repository
+  [label=" repository (repositoryfield)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_RepositoryFieldAnswer -> repository_models_RepositoryField
+  [label=" field (repositoryfieldanswer)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_RepositoryFieldAnswer -> repository_models_Preprint
+  [label=" preprint (repositoryfieldanswer)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_Preprint -> repository_models_Repository
+  [label=" repository (preprint)"] [arrowhead=none, arrowtail=dot, dir=both];
+  core_models_Account [label=<
+  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#000000">
+  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Account</FONT>
+  </TD></TR>
+  </TABLE>
+  >]
+  repository_models_Preprint -> core_models_Account
+  [label=" owner (preprint)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_Preprint -> repository_models_PreprintFile
+  [label=" submission_file (submission_file)"] [arrowhead=none, arrowtail=dot, dir=both];
+  submission_models_Licence [label=<
+  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#000000">
+  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Licence</FONT>
+  </TD></TR>
+  </TABLE>
+  >]
+  repository_models_Preprint -> submission_models_Licence
+  [label=" license (preprint)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_Preprint -> repository_models_Subject
+  [label=" subject (preprint)"] [arrowhead=dot arrowtail=dot, dir=both];
+  submission_models_Keyword [label=<
+  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#000000">
+  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Keyword</FONT>
+  </TD></TR>
+  </TABLE>
+  >]
+  repository_models_Preprint -> submission_models_Keyword
+  [label=" keywords (preprint)"] [arrowhead=dot arrowtail=dot, dir=both];
+
+  repository_models_PreprintFile -> repository_models_Preprint
+  [label=" preprint (preprintfile)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_PreprintAccess -> repository_models_Preprint
+  [label=" preprint (preprintaccess)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_PreprintAccess -> repository_models_PreprintFile
+  [label=" file (preprintaccess)"] [arrowhead=none, arrowtail=dot, dir=both];
+  core_models_Country [label=<
+  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#000000">
+  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Country</FONT>
+  </TD></TR>
+  </TABLE>
+  >]
+  repository_models_PreprintAccess -> core_models_Country
+  [label=" country (preprintaccess)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_PreprintAuthor -> repository_models_Preprint
+  [label=" preprint (preprintauthor)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_PreprintAuthor -> repository_models_Author
+  [label=" author (preprintauthor)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_PreprintVersion -> repository_models_Preprint
+  [label=" preprint (preprintversion)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_PreprintVersion -> repository_models_PreprintFile
+  [label=" file (preprintversion)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_PreprintVersion -> repository_models_VersionQueue
+  [label=" moderated_version (preprintversion)"] [arrowhead=none, arrowtail=dot, dir=both];
+  core_models_Account [label=<
+  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#000000">
+  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Account</FONT>
+  </TD></TR>
+  </TABLE>
+  >]
+  repository_models_Comment -> core_models_Account
+  [label=" author (comment)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_Comment -> repository_models_Preprint
+  [label=" preprint (comment)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_Comment -> repository_models_Comment
+  [label=" reply_to (comment)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_Subject -> repository_models_Repository
+  [label=" repository (subject)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_Subject -> repository_models_Subject
+  [label=" parent (children)"] [arrowhead=none, arrowtail=dot, dir=both];
+  core_models_Account [label=<
+  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#000000">
+  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Account</FONT>
+  </TD></TR>
+  </TABLE>
+  >]
+  repository_models_Subject -> core_models_Account
+  [label=" editors (subject)"] [arrowhead=dot arrowtail=dot, dir=both];
+
+  repository_models_VersionQueue -> repository_models_Preprint
+  [label=" preprint (versionqueue)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+  repository_models_VersionQueue -> repository_models_PreprintFile
+  [label=" file (versionqueue)"] [arrowhead=none, arrowtail=dot, dir=both];
+
+
+}
