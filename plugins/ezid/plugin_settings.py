@@ -1,4 +1,9 @@
 from utils import plugins, models, setting_handler
+from events import logic as event_logic  # We always import this as event_logic
+from plugins.ezid import logic
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 PLUGIN_NAME = 'EZID DOI Plugin'
 DISPLAY_NAME = 'EZID DOI'
@@ -37,7 +42,35 @@ def install():
     defaults = {"version": VERSION, "enabled": True}
     plugin, created = models.Plugin.objects.get_or_create(
             name=SHORT_NAME,
+            enabled=True,
             defaults=defaults,
+    )
+
+    models.PluginSetting.objects.get_or_create(
+        name='ezid_enabled',
+        plugin=plugin,
+        types='boolean',
+        pretty_name="Enable EZID Plugin",
+        description='Enable EZID DOI Minter Plugin',
+        is_translatable=False
+    )
+
+    models.PluginSetting.objects.get_or_create(
+        name='ezid_prefix',
+        plugin=plugin,
+        types='string',
+        pretty_name='EZID Prefix',
+        description='Prefix to use to mint DOIs using EZID',
+        is_translatable=False
+    )
+
+    models.PluginSetting.objects.get_or_create(
+        name='ezid_url',
+        plugin=plugin,
+        types='string',
+        pretty_name='EZID Endpoint URL',
+        description='Endpoint URL to use to mint DOIs using EZID',
+        is_translatable=False
     )
 
     if created:
@@ -51,8 +84,9 @@ def install():
             print('Plugin {0} is already installed.'.format(PLUGIN_NAME))
 
 def hook_registry():
-    #TODO: add all the hooks we need to use (this is the bulk of the action here)
-    EzidPlugin.hook_registry()
+    logger.debug('>>>>>>>>>>>>>>>>> hook_registry called for ezid plugin')
+    event_logic.Events.register_for_event(event_logic.Events.ON_PREPRINT_PUBLICATION,
+                                      logic.preprint_publication)
 
 
 def register_for_events():
