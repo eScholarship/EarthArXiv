@@ -1,4 +1,4 @@
-from utils import plugins, models, setting_handler
+from utils import plugins, models
 from events import logic as event_logic  # We always import this as event_logic
 from plugins.ezid import logic
 from utils.logger import get_logger
@@ -23,6 +23,7 @@ DASHBOARD_TEMPLATE = 'ezid/elements/dashboard.html'
 
 
 class EzidPlugin(plugins.Plugin):
+    ''' define this plugin '''
     plugin_name = PLUGIN_NAME
     display_name = DISPLAY_NAME
     description = DESCRIPTION
@@ -39,12 +40,15 @@ class EzidPlugin(plugins.Plugin):
 
 
 def install():
+    ''' install this plugin '''
     defaults = {"version": VERSION, "enabled": True}
     plugin, created = models.Plugin.objects.get_or_create(
-            name=SHORT_NAME,
-            enabled=True,
-            defaults=defaults,
+        name=SHORT_NAME,
+        enabled=True,
+        defaults=defaults,
     )
+
+    # TODO: get the plugin settings below working in a future version of this plugin
 
     models.PluginSetting.objects.get_or_create(
         name='ezid_enabled',
@@ -84,11 +88,13 @@ def install():
             print('Plugin {0} is already installed.'.format(PLUGIN_NAME))
 
 def hook_registry():
+    ''' connect a hook with a method in this plugin's logic '''
     logger.debug('>>>>>>>>>>>>>>>>> hook_registry called for ezid plugin')
     event_logic.Events.register_for_event(event_logic.Events.ON_PREPRINT_PUBLICATION,
-                                      logic.preprint_publication)
+                                          logic.preprint_publication)
 
 
 def register_for_events():
+    '''register for events '''
     #TODO: add events we need to listen for here
     pass
