@@ -1,7 +1,11 @@
+''' Settings for the EZID plugin for Janeway '''
 from utils import plugins, models
-from events import logic as event_logic  # We always import this as event_logic
-from plugins.ezid import logic
 from utils.logger import get_logger
+
+from events import logic as event_logic  # We always import this as event_logic
+
+from plugins.ezid import logic
+
 
 logger = get_logger(__name__)
 

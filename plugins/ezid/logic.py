@@ -7,6 +7,7 @@ __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 import datetime
 from uuid import uuid4
 import requests
+import pdb
 
 from django.urls import reverse
 from django.template.loader import render_to_string
@@ -34,15 +35,18 @@ EZID_LIVE_URL = 'https://api_ezid.org/deposits'
 
 
 def preprint_publication(**kwargs):
-    logger.debug('>>> preprint_publication event called, mint a DOI via EZID... kwargs output follows...')
-    # TODO: access and output the metadata we will use to mint these DOIs, start simple, just the ID and the title
+    ''' hook script for the preprint_publication event '''
+    logger.debug('>>> preprint_publication called, mint an EZID DOI...')
 
-    p = kwargs.get('preprint')
+    preprint = kwargs.get('preprint')
+    request = kwargs.get('request')
 
-    p_id = p.pk
-    p_authors = p.authors
+    url = request.press.site_url() + reverse(
+        'repository_preprint',
+        kwargs={'preprint_id': preprint.pk},
+    )
 
-    import pdb; pdb.set_trace()
+    # pdb.set_trace() #breakpoint
 
-    logger.debug("preprint.pk: " + p_id + "; preprint.authors: " + p.authors )
+    logger.debug("preprint.pk: " + preprint.pk + "; primary author: " + preprint.authors[0] + "; url: " + url + "; title:" + preprint.title)
     # TODO: add the EZID minting call here
