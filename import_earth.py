@@ -12,6 +12,12 @@ from core import models as core_models
 from django.template.defaultfilters import slugify
 from uuid import uuid4
 
+PRESS_ID = 1
+REPO_ID = 1
+COI_ID = 1
+NODATA_ID = 1
+NUMD_ID = 1
+
 class Command(BaseCommand):
     """
     Pulls data from COS and adds to DB.
@@ -21,9 +27,47 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         print("import earth data")
+        if self.check_prereq() == False:
+            return
+
         print(django_settings.OSF_TOKEN)
-        #w = Worker()
+        #only do this doi switch once
+        #self.switchdoi()
+        w = Worker()
+
+        
         num = 1
+
+    def switchdoi(self):
+        print("switching from doi to preprint doi")
+        allobj = repository_models.Preprint.objects.all()
+        for obj in allobj:
+            obj.preprint_doi = obj.doi
+            obj.doi = None
+            obj.save()
+        print("done with doi switch")
+
+    def check_prereq(self):
+        print("checking prereq")
+        if django_settings.OSF_TOKEN is None:
+            print("add OSF token to settings to proceed")
+            return False
+
+        # get repository
+        global REPO_ID
+        global PRESS_ID
+        global COI_ID
+        global NODATA_ID
+        global NUMD_ID
+
+        repo = repository_models.Repository.objects.get()
+        REPO_ID = repo.id
+        PRESS_ID = repo.press_id
+        COI_ID = repository_models.RepositoryField.objects.get_or_create(name='conflict_of_interest_statement', input_type='text', defaults={'required':0, 'order':1, 'display':0, 'repository_id':REPO_ID })[0].id
+        NODATA_ID = repository_models.RepositoryField.objects.get_or_create(name='why_no_data', input_type='text', defaults={'required':0, 'order':2, 'display':0, 'repository_id':REPO_ID })[0].id
+        NUMD_ID = repository_models.RepositoryField.objects.get_or_create(name='num_downloads', input_type='text', defaults={'required':0, 'order':3, 'display':0, 'repository_id':REPO_ID })[0].id
+
+        return True
 
 
 ############################################################
@@ -73,7 +117,7 @@ class License:
         self.text = data["attributes"]["text"]
         self.url = data["attributes"]["url"]
         self.isValid = True
-        self.lic = submission_models.Licence.objects.get_or_create(name=self.name, defaults={'short_name':self.name, 'url':self.url, 'text':self.text, 'press_id':1, 'order':License.order })[0]
+        self.lic = submission_models.Licence.objects.get_or_create(name=self.name, defaults={'short_name':self.name, 'url':self.url, 'text':self.text, 'press_id':PRESS_ID, 'order':License.order })[0]
 
 ############################################################
 
@@ -94,7 +138,7 @@ class Subjects:
                 if data[i][j].get('text') is not None:
                     #self.arr.append(data[i][j]['text'])
                     subject = data[i][j]['text']
-                    result = repository_models.Subject.objects.get_or_create(name=subject, repository_id=1, parent_id=prev, defaults={'slug':slugify(subject)})[0]
+                    result = repository_models.Subject.objects.get_or_create(name=subject, repository_id=REPO_ID, parent_id=prev, defaults={'slug':slugify(subject)})[0]
                     prev = result.id
                     if result.id not in self.arr:
                         self.arr[result.id] = result
@@ -190,6 +234,7 @@ class EarthItem:
     contributors=""
     primaryFile="" 
     files=""
+    data=None
     def __init__(self, data):
         print("extract key info here")
         self.osfId=data['id']
@@ -207,6 +252,12 @@ class EarthItem:
         if self.pp_doi is None or len(self.pp_doi) < 10:
             print("overriding pp doi with osfid since it is used to id of article")
             self.pp_doi = self.osfId
+        self.data = None
+        typedata = data['relationships'].get('node',d).get('data',d)
+        if typedata:
+            type = typedata.get('type','')
+            if type == 'nodes':
+                self.data = typedata.get('id','')
 
 ############################################################
 
@@ -224,18 +275,52 @@ class Article:
     dateDoiCreated="" 
     reviewState="" 
     is_published=False
-    data_links=''
+    data_links=[]  #NEW
     title=''
     desc=''
     pp = None
+    doi = None     #NEW - done
+    why_no_data = None #NEW
+    conflict_of_interest_statement = None
     def __init__(self, eItem, licId):
         print("extract item info here")
         self.extractData(eItem.attr)
-        self.pp = repository_models.Preprint.objects.get_or_create(doi=eItem.pp_doi, defaults={'stage':'preprint_published', 'title':self.title, 'abstract': self.desc, 'current_step':5,
-                                                                                               'comments_editor':self.reviewState, 'preprint_decision_notification':1, 'repository_id':1, 
-                                                                                               'license_id':licId, 'date_started':self.dateCreated, 'date_accepted':self.datePublished,
-                                                                                               'date_published':self.datePublished,'date_submitted':self.dateCreated, 'date_updated':self.dateModified})[0]
+        self.pp = None
+        if self.reviewState != 'withdrawn':
+            # update the identity column
+            self.pp = repository_models.Preprint.objects.get_or_create(preprint_doi=eItem.pp_doi, defaults={'stage':'preprint_published', 'title':self.title, 'abstract': self.desc, 'current_step':5,
+                                                                                                   'comments_editor':self.reviewState, 'preprint_decision_notification':1, 'repository_id':REPO_ID, 
+                                                                                                   'license_id':licId, 'date_started':self.dateCreated, 'date_accepted':self.datePublished,
+                                                                                                   'date_published':self.datePublished,'date_submitted':self.dateCreated, 'date_updated':self.dateModified})[0]
+        
+            self.fillData(eItem)
+            self.saveExtras()
             
+
+    def fillData(self, eItem):
+        print("fill data if present and published doi")
+        if self.doi:
+            self.pp.doi = self.doi
+        num = 0
+        if eItem.data is not None:
+            num += 1
+            repository_models.PreprintSupplementaryFile.objects.get_or_create(preprint_id=self.pp.id, url = 'https://osf.io/'+eItem.data, defaults={'label':'Supplementary material', 'order':num})
+
+        if self.data_links:
+            for link in self.data_links:
+                #create a link
+                num += 1
+                repository_models.PreprintSupplementaryFile.objects.get_or_create(preprint_id=self.pp.id, url = link, defaults={'label':'Public data', 'order':num})
+
+    def saveExtras(self):
+        print("save extras in field/answer")
+        
+        if self.why_no_data is not None and self.why_no_data != '':
+            repository_models.RepositoryFieldAnswer.objects.get_or_create(preprint_id=self.pp.id, field_id = NODATA_ID, defaults={'answer': self.why_no_data})
+
+        if self.conflict_of_interest_statement is not None:
+            repository_models.RepositoryFieldAnswer.objects.get_or_create(preprint_id=self.pp.id, field_id = COI_ID, defaults={'answer': self.conflict_of_interest_statement})
+
 
 
     def extractData(self,data):
@@ -250,8 +335,11 @@ class Article:
         self.reviewState=data['reviews_state'] 
         self.is_published=data.get('is_published',False) or False
         self.data_links=data['data_links']
+        self.why_no_data=data['why_no_data']
+        self.conflict_of_interest_statement = data['conflict_of_interest_statement']
         self.title=data['title'].replace('\'','')
         self.desc=data['description'].replace('\'','')
+        self.doi=data['doi']
 
 ############################################################
 class Version:
@@ -268,6 +356,7 @@ class Version:
     pf = None
     pv = None
     oldpath = ''
+
     def __init__(self, data, pp, parentId):
         print("extract version here")
         self.extractData(data)
@@ -316,7 +405,7 @@ class VersionFiles:
     arr:[]
     id:''
     name:''
-    downloads:''
+    downloads:'' # NEW
     current_version:''
     def __init__(self, data, osf, pp):
         print("get the osfstorage link")
@@ -335,6 +424,7 @@ class VersionFiles:
         self.current_version = str(data[0]["attributes"]["current_version"])
         versions = data[0]["relationships"]["versions"]["links"]["related"]["href"]
         self.extractVersions(osf.getData(versions), pp)
+        self.filldownloads(pp)
 
     def extractVersions(self, data, pp):
         for i in range(len(data["data"])):
@@ -345,6 +435,11 @@ class VersionFiles:
                 pp.submission_file_id = self.arr[i].pf.id
                 #pp.curent_version_id = self.arr[i].pv.id
 
+    def filldownloads(self, pp):
+        print("fill the number of downloads so far")
+        if self.downloads:
+            repository_models.RepositoryFieldAnswer.objects.get_or_create(preprint_id=pp.id, field_id = NUMD_ID, defaults={'answer': self.downloads})
+
 
 ############################################################
 
@@ -353,36 +448,43 @@ class Worker:
 
     osf = OSF()
     def __init__(self):
+
         print("lets get the list of all licenses")
         # create a dictionary of OSF id and License       
         next = self.osf.earth_search
 
         while next is not None:
             data = self.osf.getItems(next)
-            next = data['links']['next']
-            #next = None
+            #next = data['links']['next']
+            next = None
             for i in range(len(data['data'])):
                 a = EarthItem(data['data'][i])
                 licId = self.getLicense(a)                
                 pp = self.getArticle(a, licId)
-                #file = self.getPrimaryFile(a, pp)
-                files = self.getAllVersions(a, pp)
-                self.getSubjects(a, pp)
-                self.getTags(a, pp)
-                auths = self.getAuthors(a, pp)
-                pp.owner_id = auths.owner
-                #pp.subject_id = subId1
-                if files is None:
-                    pp.date_accepted = None
-                    pp.date_published = None
-                    pp.current_step = 1
-                pp.save()
-                #delete the older record for ppfile
-                try:
-                    oldfile = repository_models.PreprintFile.objects.get(file=files.arr[0].oldpath)
-                    oldfile.delete()
-                except:
-                    print("tried deleting older entry without version number attached")
+                if pp is not None:
+                    self.processArticle(a, pp)
+
+        self.deleteWithdrawn()
+
+
+    def processArticle(self, a, pp):
+        files = self.getAllVersions(a, pp)
+        self.getSubjects(a, pp)
+        self.getTags(a, pp)
+        auths = self.getAuthors(a, pp)
+        pp.owner_id = auths.owner
+        if files is None:
+            pp.date_accepted = None
+            pp.date_published = None
+            pp.current_step = 1
+        pp.save()
+
+    def deleteWithdrawn(self):
+        #find all the entries with withdrawn 
+        allobj = repository_models.Preprint.objects.filter(comments_editor='withdrawn')
+        for obj in allobj:
+            obj.delete()
+
 
     def getLicense(self, a):      
         if a.license in self.allLicenses:
