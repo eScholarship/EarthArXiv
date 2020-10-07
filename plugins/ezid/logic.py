@@ -1,58 +1,23 @@
-__copyright__ = "Copyright 2017 Birkbeck, University of London"
-__author__ = "Martin Paul Eve & Andy Byers"
-__license__ = "AGPL v3"
-__maintainer__ = "Birkbeck Centre for Technology and Publishing"
+__copyright__ = "Copyright (c) 2020, The Regents of the University of California"
+__author__ = "Hardy Pottinger & Mahjabeen Yucekul"
+__license__ = "BSD 3-Clause"
+__maintainer__ = "California Digital Library"
 
-# imports from mint_method scratchpad
 import re
 from urllib.parse import quote
 import urllib.request as urlreq
-from xmltodict import unparse
-
-
-# import codecs
-# import datetime
-# from uuid import uuid4
-# import sys
-# import re
-# import urllib.request as urlreq
-# from urllib.parse import quote
-# import requests
-import pdb #use for debugging, remove this import before using this plugin in production
 import json #use for debugging dictionaries
-
 from django.urls import reverse
-from django.template.loader import render_to_string
-from django.utils.http import urlencode
 from django.conf import settings
-from django.contrib import messages
-from django.utils import timezone
-
-from utils import models as util_models
-from utils.function_cache import cache
+from xmltodict import unparse
 from utils.logger import get_logger
-
-import time
-import types
-
-# KNOWN_SERVERS = {
-#     "p": "https://ezid.cdlib.org"
-# }
-
 
 logger = get_logger(__name__)
 
-# EZID_TEST_URL = 'https://api_ezid.org/deposits?test=true'
-# EZID_LIVE_URL = 'https://api_ezid.org/deposits'
-
-# TODO: set all of these with settings.py, but keep them hard coded for now
-SHOULDER = 'doi:10.15697/' #for the actual plugin, get the value from the settings.py
-USERNAME = 'apitest' #for the actual plugin, get the value from the settings.py
-PASSWORD = 'apitest' #for the actual plugin, get the value from the settings.py
-ENDPOINT_URL = 'https://uc3-ezidx2-stg.cdlib.org'
-#URL = 'https://ezid.cdlib.org' #for the actual plugin, get the value from the settings.py
-# staging URL is: https://uc3-ezidx2-stg.cdlib.org in case you need it
-TARGET_URL = 'https://escholarship.org/'
+SHOULDER = settings.EZID_SHOULDER
+USERNAME = settings.EZID_USERNAME
+PASSWORD = settings.EZID_PASSWORD
+ENDPOINT_URL = settings.EZID_ENDPOINT_URL
 
 def preprintauthors_to_dict(preprint_authors):
     ''' returns a list of authors in dictionary format using a list of author objects '''
@@ -69,18 +34,16 @@ def preprintauthors_to_dict(preprint_authors):
             author_list.append({"@sequence": sequence, "@contributor_role": "author", "given_name":  author.author.first_name, "surname": author.author.last_name, "ORCID": author.author.orcid},)
         else:
             author_list.append({"@sequence": sequence, "@contributor_role": "author", "given_name":  author.author.first_name, "surname": author.author.last_name},)
-
-
     return author_list
 
 class EzidHTTPErrorProcessor(urlreq.HTTPErrorProcessor):
     ''' Error Processor, required to let 201 responses pass '''
     def http_response(self, request, response):
-    # Bizarre that Python leaves this out.
         if response.code == 201:
-            return response
+            my_return = response
         else:
-            return urlreq.HTTPErrorProcessor.http_response(self, request, response)
+            my_return = urlreq.HTTPErrorProcessor.http_response(self, request, response)
+        return my_return
     https_response = http_response
 
 def send_create_request(data, shoulder, username, password, endpoint_url):
@@ -116,10 +79,10 @@ def encode(txt):
     ''' encode a text string '''
     return quote(txt, ":/")
 
-#pylint: disable=too-many-arguments
-#TODO: clean up this implementation, to bring the number of arguments down under 5)
-def mint_doi_via_ezid(shoulder, username, password, endpoint_url, target_url, group_title, contributors, title, posted_date, acceptance_date):
-    ''' Sends a mint request for the specified shoulder, via the EZID url, for the specified target '''
+def mint_doi_via_ezid(ezid_config, ezid_data):
+    ''' Sends a mint request for the specified config, using the provided data '''
+    # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
+    # ezid_data dicitionary contains values for the following keys: target_url, group_title, contributors, title, published_date, accepted_date
 
     posted_content = {
         "posted_content": {
@@ -127,14 +90,14 @@ def mint_doi_via_ezid(shoulder, username, password, endpoint_url, target_url, gr
             "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
             "@xmlns:jats": "http://www.ncbi.nlm.nih.gov/JATS1",
             "@xsi:schemaLocation": "http://www.crossref.org/schema/4.4.0 http://www.crossref.org/schema/deposit/crossref4.4.0.xsd",
-            "group_title": group_title,
-            "contributors": contributors,
+            "group_title": ezid_data.group_title,
+            "contributors": ezid_data.contributors,
             "titles": {
-                "title": title
+                "title": ezid_data.title
             },
-            "posted_date": posted_date,
-            "acceptance_date": acceptance_date,
-            "doi_data": {"doi": "10.50505/preprint_sample_doi_2", "resource": "https://escholarship.org/"}
+            "posted_date": ezid_data.posted_date,
+            "acceptance_date": ezid_data.acceptance_date,
+            # "doi_data": {"doi": "10.50505/preprint_sample_doi_2", "resource": "https://escholarship.org/"}
         }
     }
 
@@ -149,26 +112,13 @@ def mint_doi_via_ezid(shoulder, username, password, endpoint_url, target_url, gr
     #uncomment this and the import pdb in the imports above to crank up the debugger
     #pdb.set_trace()
 
-    # These notes will be useful when we move this method to Django, but right now they're useless
-    # from django.conf import settings
-    # settings.ezid_shoulder
-    # settings.ezid_username
-    # settings.ezid_password
-
-    # print('\n\n')
-    # print('using these values, shoulder: ' + shoulder + '; username: ' + username + '; password: ' + password)
-    # print('\n\n')
-
-    # send the mint request
-    # print('Sending request to EZID API...\n\n')
-
     # build the payload
-    payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + target_url + '\n_owner: ' + username
+    payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_data.target_url + '\n_owner: ' + ezid_config.username
 
     # print('\n\npayload:\n\n')
     # print(payload)
 
-    result = send_create_request(payload, shoulder, username, password, endpoint_url)
+    result = send_create_request(payload, ezid_config.shoulder, ezid_config.username, ezid_config.password, ezid_config.endpoint_url)
     return result
 
 def preprint_publication(**kwargs):
@@ -178,20 +128,20 @@ def preprint_publication(**kwargs):
     preprint = kwargs.get('preprint')
     request = kwargs.get('request')
 
+    # gather metadata required for minting a DOI via EZID
     target_url = request.press.site_url() + reverse(
         'repository_preprint',
         kwargs={'preprint_id': preprint.pk},
     )
-
     group_title = preprint.subject.values_list()[0][2]
     title = preprint.title
-    accepted_date = {'month':preprint.date_accepted.month,'day':preprint.date_accepted.day, 'year':preprint.date_accepted.year}
-    published_date = {'month':preprint.date_published.month,'day':preprint.date_published.day, 'year':preprint.date_published.year}
+    accepted_date = {'month':preprint.date_accepted.month, 'day':preprint.date_accepted.day, 'year':preprint.date_accepted.year}
+    published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
     contributors = preprintauthors_to_dict(preprint.preprintauthor_set.all())
 
-    #some notes on the metatdata required for the mint_doi_via_ezid method above:
-    # [x] target_url
-    # [x] group_title ( preprint.subject.values_list()[0][2] )
+    #some notes on the metatdata required:
+    # [x] target_url (direct link to preprint)
+    # [x] group_title ( preprint.subject.values_list()[0][2] ) grab the first subject
     # [x] contributors - needs to be a list, with a dictionary per row:
     # "person_name": [{"@sequence": "first", "@contributor_role": "author", "given_name": "Hardy", "surname": "Pottinger", "ORCID": "https://orcid.org/0000-0001-8549-9354"},]
     # (preprint.preprintauthor_set is an object ref, work with it, preprintauthor_set.all() would get you a list of all authors)
@@ -204,7 +154,17 @@ def preprint_publication(**kwargs):
     logger.debug("preprint url: " + target_url)
     logger.debug("title: " + title)
     logger.debug("group_title: " + group_title)
-    logger.debug("contributors: " + ''.join(json.dumps(contributors)))
+    logger.debug("contributors: \"person_name\": [" + ''.join(json.dumps(contributors)) + "]")
     logger.debug("accepted_date: " + json.dumps(accepted_date))
     logger.debug("published_date: " + json.dumps(published_date))
-    # TODO: add the EZID minting call here
+
+    logger.debug('BEGIN MINTING REQUEST...')
+
+    # prepare two dictionaries to feed into the mint_doi_via_ezid function
+    ezid_config = {'shoulder': SHOULDER, 'username': USERNAME, 'password': PASSWORD, 'endpoint_url': ENDPOINT_URL}
+    ezid_data = {'target_url': target_url, 'group_title': group_title, 'contributors': contributors, 'title': title, 'published_date': published_date, 'accepted_date': accepted_date}
+
+    ezid_result = mint_doi_via_ezid(ezid_config, ezid_data)
+    if ezid_result.startswith('success:'):
+        new_doi = re.search("doi:[0-9A-Z./]+", ezid_result).group()
+        logger.debug('DOI successfully created: ' + new_doi)
