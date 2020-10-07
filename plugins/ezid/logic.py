@@ -84,6 +84,8 @@ def mint_doi_via_ezid(ezid_config, ezid_data):
     # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
     # ezid_data dicitionary contains values for the following keys: target_url, group_title, contributors, title, published_date, accepted_date
 
+    contributors = {"person_name": ezid_data.contributors}
+
     posted_content = {
         "posted_content": {
             "@xmlns": "http://www.crossref.org/schema/4.4.0",
@@ -91,7 +93,7 @@ def mint_doi_via_ezid(ezid_config, ezid_data):
             "@xmlns:jats": "http://www.ncbi.nlm.nih.gov/JATS1",
             "@xsi:schemaLocation": "http://www.crossref.org/schema/4.4.0 http://www.crossref.org/schema/deposit/crossref4.4.0.xsd",
             "group_title": ezid_data.group_title,
-            "contributors": ezid_data.contributors,
+            "contributors": contributors,
             "titles": {
                 "title": ezid_data.title
             },
