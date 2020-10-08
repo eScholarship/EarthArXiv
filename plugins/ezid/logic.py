@@ -7,6 +7,7 @@ import re
 from urllib.parse import quote
 import urllib.request as urlreq
 import json #use for debugging dictionaries
+import pdb
 from django.urls import reverse
 from django.conf import settings
 from xmltodict import unparse
@@ -79,12 +80,12 @@ def encode(txt):
     ''' encode a text string '''
     return quote(txt, ":/")
 
-def mint_doi_via_ezid(ezid_config, ezid_data):
+def mint_doi_via_ezid(ezid_config, ezid_metadata):
     ''' Sends a mint request for the specified config, using the provided data '''
     # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
     # ezid_data dicitionary contains values for the following keys: target_url, group_title, contributors, title, published_date, accepted_date
 
-    contributors = {"person_name": ezid_data.contributors}
+    # pdb.set_trace()
 
     posted_content = {
         "posted_content": {
@@ -92,13 +93,13 @@ def mint_doi_via_ezid(ezid_config, ezid_data):
             "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
             "@xmlns:jats": "http://www.ncbi.nlm.nih.gov/JATS1",
             "@xsi:schemaLocation": "http://www.crossref.org/schema/4.4.0 http://www.crossref.org/schema/deposit/crossref4.4.0.xsd",
-            "group_title": ezid_data.group_title,
-            "contributors": contributors,
+            "group_title": ezid_metadata['group_title'],
+            "contributors": ezid_metadata['contributors'],
             "titles": {
-                "title": ezid_data.title
+                "title": ezid_metadata['title']
             },
-            "posted_date": ezid_data.posted_date,
-            "acceptance_date": ezid_data.acceptance_date,
+            "posted_date": ezid_metadata['published_date'],
+            "acceptance_date": ezid_metadata['accepted_date'],
             # "doi_data": {"doi": "10.50505/preprint_sample_doi_2", "resource": "https://escholarship.org/"}
         }
     }
@@ -115,12 +116,12 @@ def mint_doi_via_ezid(ezid_config, ezid_data):
     #pdb.set_trace()
 
     # build the payload
-    payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_data.target_url + '\n_owner: ' + ezid_config.username
+    payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['username']
 
     # print('\n\npayload:\n\n')
     # print(payload)
 
-    result = send_create_request(payload, ezid_config.shoulder, ezid_config.username, ezid_config.password, ezid_config.endpoint_url)
+    result = send_create_request(payload, ezid_config['shoulder'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
     return result
 
 def preprint_publication(**kwargs):
@@ -139,7 +140,9 @@ def preprint_publication(**kwargs):
     title = preprint.title
     accepted_date = {'month':preprint.date_accepted.month, 'day':preprint.date_accepted.day, 'year':preprint.date_accepted.year}
     published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
-    contributors = preprintauthors_to_dict(preprint.preprintauthor_set.all())
+    contributors_list = preprintauthors_to_dict(preprint.preprintauthor_set.all())
+
+    contributors_string = '"person_name": ' + ''.join(json.dumps(contributors_list))
 
     #some notes on the metatdata required:
     # [x] target_url (direct link to preprint)
@@ -156,7 +159,7 @@ def preprint_publication(**kwargs):
     logger.debug("preprint url: " + target_url)
     logger.debug("title: " + title)
     logger.debug("group_title: " + group_title)
-    logger.debug("contributors: \"person_name\": [" + ''.join(json.dumps(contributors)) + "]")
+    logger.debug("contributors: " + contributors_string)
     logger.debug("accepted_date: " + json.dumps(accepted_date))
     logger.debug("published_date: " + json.dumps(published_date))
 
@@ -164,9 +167,18 @@ def preprint_publication(**kwargs):
 
     # prepare two dictionaries to feed into the mint_doi_via_ezid function
     ezid_config = {'shoulder': SHOULDER, 'username': USERNAME, 'password': PASSWORD, 'endpoint_url': ENDPOINT_URL}
-    ezid_data = {'target_url': target_url, 'group_title': group_title, 'contributors': contributors, 'title': title, 'published_date': published_date, 'accepted_date': accepted_date}
+    ezid_metadata = {'target_url': target_url, 'group_title': group_title, 'contributors': contributors_string, 'title': title, 'published_date': published_date, 'accepted_date': accepted_date}
 
-    ezid_result = mint_doi_via_ezid(ezid_config, ezid_data)
+    logger.debug('ezid_config: ' + json.dumps(ezid_config))
+    logger.debug('ezid_metadata: '+ json.dumps(ezid_metadata))
+
+    ezid_result = mint_doi_via_ezid(ezid_config, ezid_metadata)
     if ezid_result.startswith('success:'):
         new_doi = re.search("doi:[0-9A-Z./]+", ezid_result).group()
         logger.debug('DOI successfully created: ' + new_doi)
+        preprint.preprint_doi = new_doi
+        preprint.save()
+        logger.debug('DOI added to preprint Janeway object and saved. A preprint is born!')
+    else:
+        logger.error('EZID DOI creation failed for preprint.pk [' + preprint.pk + '] ...' )
+        logger.error(ezid_result)
