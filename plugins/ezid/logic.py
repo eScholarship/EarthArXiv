@@ -108,10 +108,10 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
     metadata = unparse(posted_content).replace('\n', '').replace('\r', '')
 
     # uncomment this to validate the metadata payload
-    print('\n\n')
-    print('Using this metadata:')
-    print('\n\n')
-    print(unparse(posted_content, pretty=True))
+    # print('\n\n')
+    # print('Using this metadata:')
+    # print('\n\n')
+    # print(unparse(posted_content, pretty=True))
 
     # # uncomment this and the import pdb in the imports above to crank up the debugger
     # pdb.set_trace()
