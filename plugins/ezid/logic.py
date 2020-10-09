@@ -100,20 +100,21 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
             },
             "posted_date": ezid_metadata['published_date'],
             "acceptance_date": ezid_metadata['accepted_date'],
-            # "doi_data": {"doi": "10.50505/preprint_sample_doi_2", "resource": "https://escholarship.org/"}
+            # TODO: find a correct value for this doi_data, for now, just about anything will work
+            "doi_data": {"doi": "10.50505/preprint_sample_doi_2", "resource": "https://escholarship.org/"}
         }
     }
 
     metadata = unparse(posted_content).replace('\n', '').replace('\r', '')
 
     # uncomment this to validate the metadata payload
-    # print('\n\n')
-    # print('Using this metadata:')
-    # print('\n\n')
-    # print(unparse(posted_content, pretty=True))
+    print('\n\n')
+    print('Using this metadata:')
+    print('\n\n')
+    print(unparse(posted_content, pretty=True))
 
-    #uncomment this and the import pdb in the imports above to crank up the debugger
-    #pdb.set_trace()
+    # # uncomment this and the import pdb in the imports above to crank up the debugger
+    # pdb.set_trace()
 
     # build the payload
     payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['username']
@@ -142,7 +143,10 @@ def preprint_publication(**kwargs):
     published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
     contributors_list = preprintauthors_to_dict(preprint.preprintauthor_set.all())
 
-    contributors_string = '"person_name": ' + ''.join(json.dumps(contributors_list))
+    # load the contributors list into a dictionary
+    contributors = {
+                "person_name": contributors_list
+                }
 
     #some notes on the metatdata required:
     # [x] target_url (direct link to preprint)
@@ -159,7 +163,7 @@ def preprint_publication(**kwargs):
     logger.debug("preprint url: " + target_url)
     logger.debug("title: " + title)
     logger.debug("group_title: " + group_title)
-    logger.debug("contributors: " + contributors_string)
+    logger.debug("contributors: " + json.dumps(contributors))
     logger.debug("accepted_date: " + json.dumps(accepted_date))
     logger.debug("published_date: " + json.dumps(published_date))
 
@@ -167,18 +171,24 @@ def preprint_publication(**kwargs):
 
     # prepare two dictionaries to feed into the mint_doi_via_ezid function
     ezid_config = {'shoulder': SHOULDER, 'username': USERNAME, 'password': PASSWORD, 'endpoint_url': ENDPOINT_URL}
-    ezid_metadata = {'target_url': target_url, 'group_title': group_title, 'contributors': contributors_string, 'title': title, 'published_date': published_date, 'accepted_date': accepted_date}
+    ezid_metadata = {'target_url': target_url, 'group_title': group_title, 'contributors': contributors, 'title': title, 'published_date': published_date, 'accepted_date': accepted_date}
 
     logger.debug('ezid_config: ' + json.dumps(ezid_config))
     logger.debug('ezid_metadata: '+ json.dumps(ezid_metadata))
 
     ezid_result = mint_doi_via_ezid(ezid_config, ezid_metadata)
-    if ezid_result.startswith('success:'):
-        new_doi = re.search("doi:[0-9A-Z./]+", ezid_result).group()
-        logger.debug('DOI successfully created: ' + new_doi)
-        preprint.preprint_doi = new_doi
-        preprint.save()
-        logger.debug('DOI added to preprint Janeway object and saved. A preprint is born!')
+
+    # if the ezid_result is a string, it's probably a success, check to be sure
+    if isinstance(ezid_result, str):
+        if ezid_result.startswith('success:'):
+            new_doi = re.search("doi:[0-9A-Z./]+", ezid_result).group()
+            logger.debug('DOI successfully created: ' + new_doi)
+            preprint.preprint_doi = new_doi
+            preprint.save()
+            logger.debug('DOI added to preprint Janeway object and saved. A preprint is born!')
+        else:
+            logger.error('EZID DOI creation failed for preprint.pk: ' + preprint.pk + ' ...')
+            logger.error('ezid_result: ' + ezid_result)
     else:
-        logger.error('EZID DOI creation failed for preprint.pk [' + preprint.pk + '] ...' )
-        logger.error(ezid_result)
+        logger.error('EZID DOI creation failed for preprint.pk: ' + preprint.pk + ' ...')
+        logger.error(ezid_result.msg)
