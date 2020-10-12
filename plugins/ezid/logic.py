@@ -133,7 +133,7 @@ def preprint_publication(**kwargs):
     request = kwargs.get('request')
 
     # gather metadata required for minting a DOI via EZID
-    target_url = request.press.site_url() + reverse(
+    target_url = request.repository.site_url() + reverse(
         'repository_preprint',
         kwargs={'preprint_id': preprint.pk},
     )
