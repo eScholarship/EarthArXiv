@@ -39,4 +39,4 @@ When installed and configured, the plugin will mint DOIs and add them to the sys
 
 ## License
 
-BSD 3-Clause
+[BSD 3-Clause](LICENSE)
