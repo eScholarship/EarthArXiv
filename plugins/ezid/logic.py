@@ -133,10 +133,8 @@ def preprint_publication(**kwargs):
     request = kwargs.get('request')
 
     # gather metadata required for minting a DOI via EZID
-    target_url = request.repository.site_url() + reverse(
-        'repository_preprint',
-        kwargs={'preprint_id': preprint.pk},
-    )
+    target_url = preprint.url
+
     group_title = preprint.subject.values_list()[0][2]
     title = preprint.title
     accepted_date = {'month':preprint.date_accepted.month, 'day':preprint.date_accepted.day, 'year':preprint.date_accepted.year}
