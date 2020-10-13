@@ -18,6 +18,7 @@ logger = get_logger(__name__)
 SHOULDER = settings.EZID_SHOULDER
 USERNAME = settings.EZID_USERNAME
 PASSWORD = settings.EZID_PASSWORD
+OWNER = settings.EZID_OWNER
 ENDPOINT_URL = settings.EZID_ENDPOINT_URL
 
 def preprintauthors_to_dict(preprint_authors):
@@ -117,7 +118,7 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
     # pdb.set_trace()
 
     # build the payload
-    payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['username']
+    payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['owner']
 
     # print('\n\npayload:\n\n')
     # print(payload)
@@ -168,7 +169,7 @@ def preprint_publication(**kwargs):
     logger.debug('BEGIN MINTING REQUEST...')
 
     # prepare two dictionaries to feed into the mint_doi_via_ezid function
-    ezid_config = {'shoulder': SHOULDER, 'username': USERNAME, 'password': PASSWORD, 'endpoint_url': ENDPOINT_URL}
+    ezid_config = {'shoulder': SHOULDER, 'username': USERNAME, 'password': PASSWORD, 'endpoint_url': ENDPOINT_URL, 'owner': OWNER}
     ezid_metadata = {'target_url': target_url, 'group_title': group_title, 'contributors': contributors, 'title': title, 'published_date': published_date, 'accepted_date': accepted_date}
 
     logger.debug('ezid_config: ' + json.dumps(ezid_config))
