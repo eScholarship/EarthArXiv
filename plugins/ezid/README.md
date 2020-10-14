@@ -21,6 +21,7 @@ EZID_SHOULDER = 'doi:10.15697/'
 EZID_USERNAME = 'valid_username'
 EZID_PASSWORD = 'valid_password'
 EZID_ENDPOINT_URL = 'https://uc3-ezidx2-stg.cdlib.org'
+EZID_OWNER = 'account-name-of-whomever-should-be-billed'
 # ezid production URL is: https://ezid.cdlib.org
 # ezid staging URL is: https://uc3-ezidx2-stg.cdlib.org
 ```
