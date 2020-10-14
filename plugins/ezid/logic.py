@@ -180,7 +180,7 @@ def preprint_publication(**kwargs):
     # if the ezid_result is a string, it's probably a success, check to be sure
     if isinstance(ezid_result, str):
         if ezid_result.startswith('success:'):
-            new_doi = re.search("doi:[0-9A-Z./]+", ezid_result).group()
+            new_doi = re.search("doi:([0-9A-Z./]+)", ezid_result).group(1)
             logger.debug('DOI successfully created: ' + new_doi)
             preprint.preprint_doi = new_doi
             preprint.save()
