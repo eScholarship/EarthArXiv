@@ -94,6 +94,7 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
             "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
             "@xmlns:jats": "http://www.ncbi.nlm.nih.gov/JATS1",
             "@xsi:schemaLocation": "http://www.crossref.org/schema/4.4.0 http://www.crossref.org/schema/deposit/crossref4.4.0.xsd",
+            "@type": 'preprint',
             "group_title": ezid_metadata['group_title'],
             "contributors": ezid_metadata['contributors'],
             "titles": {
