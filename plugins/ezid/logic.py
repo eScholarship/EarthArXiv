@@ -33,7 +33,10 @@ def preprintauthors_to_dict(preprint_authors):
         else:
             sequence = 'additional'
         if author.author.orcid:
-            author_list.append({"@sequence": sequence, "@contributor_role": "author", "given_name":  author.author.first_name, "surname": author.author.last_name, "ORCID": author.author.orcid},)
+            if author.author.orcid.startswith('http'):
+                author_list.append({"@sequence": sequence, "@contributor_role": "author", "given_name":  author.author.first_name, "surname": author.author.last_name, "ORCID": author.author.orcid},)
+            else:
+                author_list.append({"@sequence": sequence, "@contributor_role": "author", "given_name":  author.author.first_name, "surname": author.author.last_name, "ORCID": 'https://orcid.org/' + author.author.orcid},)
         else:
             author_list.append({"@sequence": sequence, "@contributor_role": "author", "given_name":  author.author.first_name, "surname": author.author.last_name},)
     return author_list
