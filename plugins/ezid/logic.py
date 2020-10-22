@@ -7,8 +7,7 @@ import re
 from urllib.parse import quote
 import urllib.request as urlreq
 import json #use for debugging dictionaries
-import pdb
-from django.urls import reverse
+# import pdb
 from django.conf import settings
 from xmltodict import unparse
 from utils.logger import get_logger
@@ -21,6 +20,12 @@ PASSWORD = settings.EZID_PASSWORD
 OWNER = settings.EZID_OWNER
 ENDPOINT_URL = settings.EZID_ENDPOINT_URL
 
+def orcid_validation_check(input_string):
+    ''' Determine whether the given input_string is a valid ORCID '''
+    regex = re.compile('https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}$')
+    match = regex.match(str(input_string))
+    return bool(match)
+
 def preprintauthors_to_dict(preprint_authors):
     ''' returns a list of authors in dictionary format using a list of author objects '''
     #example: {"@sequence": "first", "@contributor_role": "author", "given_name": "Hardy", "surname": "Pottinger", "ORCID": "https://orcid.org/0000-0001-8549-9354"},
@@ -32,13 +37,40 @@ def preprintauthors_to_dict(preprint_authors):
             sequence = 'first'
         else:
             sequence = 'additional'
+
+        # build our new_author dictionary
+        new_author = dict()
+        new_author['@sequence'] = sequence
+        new_author['@contributor_role'] = 'author'
+
+        if author.author.first_name:
+            new_author['given_name'] = author.author.first_name
+        else:
+            logger.info('EZID: missing author first name encountered, omitting given_name from EZID minting request...')
+
+        if author.author.last_name:
+            new_author['surname'] = author.author.last_name
+        else:
+            logger.info('EZID: missing author last name encountered, attempting to use first name as surname in EZID minting request, since surname is mandatory...')
+            if author.author.first_name:
+                new_author['surname'] = author.author.first_name
+                del new_author['given_name']
+            else:
+                logger.warning('EZID: no usable name found for author...')
+
         if author.author.orcid:
             if author.author.orcid.startswith('http'):
-                author_list.append({"@sequence": sequence, "@contributor_role": "author", "given_name":  author.author.first_name, "surname": author.author.last_name, "ORCID": author.author.orcid},)
+                usable_orcid = author.author.orcid
             else:
-                author_list.append({"@sequence": sequence, "@contributor_role": "author", "given_name":  author.author.first_name, "surname": author.author.last_name, "ORCID": 'https://orcid.org/' + author.author.orcid},)
-        else:
-            author_list.append({"@sequence": sequence, "@contributor_role": "author", "given_name":  author.author.first_name, "surname": author.author.last_name},)
+                usable_orcid = 'https://orcid.org/' + author.author.orcid
+
+            if orcid_validation_check(usable_orcid):
+                new_author['ORCID'] = usable_orcid
+            else:
+                logger.warning('EZID: unsuable ORCID value of "' + usable_orcid + '" encountered, omitting from EZID minting request...')
+
+        author_list.append(new_author)
+
     return author_list
 
 class EzidHTTPErrorProcessor(urlreq.HTTPErrorProcessor):
@@ -105,7 +137,6 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
             },
             "posted_date": ezid_metadata['published_date'],
             "acceptance_date": ezid_metadata['accepted_date'],
-            # TODO: find a correct value for this doi_data, for now, just about anything will work
             "doi_data": {"doi": "10.50505/preprint_sample_doi_2", "resource": "https://escholarship.org/"}
         }
     }
