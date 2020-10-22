@@ -22,7 +22,7 @@ ENDPOINT_URL = settings.EZID_ENDPOINT_URL
 
 def orcid_validation_check(input_string):
     ''' Determine whether the given input_string is a valid ORCID '''
-    regex = re.compile('https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}$', re.I)
+    regex = re.compile('https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}$')
     match = regex.match(str(input_string))
     return bool(match)
 
