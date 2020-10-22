@@ -21,6 +21,11 @@ PASSWORD = settings.EZID_PASSWORD
 OWNER = settings.EZID_OWNER
 ENDPOINT_URL = settings.EZID_ENDPOINT_URL
 
+def orcid_validation_check(input_string):
+    regex = re.compile('https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}$', re.I)
+    match = regex.match(str(input_string))
+    return bool(match)
+
 def preprintauthors_to_dict(preprint_authors):
     ''' returns a list of authors in dictionary format using a list of author objects '''
     #example: {"@sequence": "first", "@contributor_role": "author", "given_name": "Hardy", "surname": "Pottinger", "ORCID": "https://orcid.org/0000-0001-8549-9354"},
@@ -32,13 +37,35 @@ def preprintauthors_to_dict(preprint_authors):
             sequence = 'first'
         else:
             sequence = 'additional'
+
+        # build our new_author dictionary
+        new_author = dict()
+        new_author['@sequence'] = sequence
+        new_author['@contributor_role'] = 'author'
+
+        if author.author.first_name:
+            new_author['given_name'] = author.author.first_name
+        else:
+            logger.info('EZID: missing author first name encountered, omitting given_name from EZID minting request...')
+
+        if author.author.last_name:
+            new_author['surname'] = author.author.last_name
+        else:
+            logger.info('EZID: missing author last name encountered, omitting surname from EZID minting request...')
+
         if author.author.orcid:
             if author.author.orcid.startswith('http'):
-                author_list.append({"@sequence": sequence, "@contributor_role": "author", "given_name":  author.author.first_name, "surname": author.author.last_name, "ORCID": author.author.orcid},)
+                usable_orcid = author.author.orcid
             else:
-                author_list.append({"@sequence": sequence, "@contributor_role": "author", "given_name":  author.author.first_name, "surname": author.author.last_name, "ORCID": 'https://orcid.org/' + author.author.orcid},)
-        else:
-            author_list.append({"@sequence": sequence, "@contributor_role": "author", "given_name":  author.author.first_name, "surname": author.author.last_name},)
+                usable_orcid = 'https://orcid.org/' + author.author.orcid
+
+            if orcid_validation_check(usable_orcid):
+                new_author['ORCID'] = usable_orcid
+            else:
+                logger.warning('EZID: unsuable ORCID value of "' + usable_orcid + '" encountered, omitting from EZID minting request...')
+
+        author_list.append(new_author)
+
     return author_list
 
 class EzidHTTPErrorProcessor(urlreq.HTTPErrorProcessor):
