@@ -7,8 +7,7 @@ import re
 from urllib.parse import quote
 import urllib.request as urlreq
 import json #use for debugging dictionaries
-import pdb
-from django.urls import reverse
+# import pdb
 from django.conf import settings
 from xmltodict import unparse
 from utils.logger import get_logger
@@ -22,6 +21,7 @@ OWNER = settings.EZID_OWNER
 ENDPOINT_URL = settings.EZID_ENDPOINT_URL
 
 def orcid_validation_check(input_string):
+    ''' Determine whether the given input_string is a valid ORCID '''
     regex = re.compile('https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}$', re.I)
     match = regex.match(str(input_string))
     return bool(match)
@@ -51,7 +51,12 @@ def preprintauthors_to_dict(preprint_authors):
         if author.author.last_name:
             new_author['surname'] = author.author.last_name
         else:
-            logger.info('EZID: missing author last name encountered, omitting surname from EZID minting request...')
+            logger.info('EZID: missing author last name encountered, attempting to use first name as surname in EZID minting request, since surname is mandatory...')
+            if author.author.first_name:
+                new_author['surname'] = author.author.first_name
+                del new_author['given_name']
+            else:
+                logger.warning('EZID: no usable name found for author...')
 
         if author.author.orcid:
             if author.author.orcid.startswith('http'):
@@ -132,7 +137,6 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
             },
             "posted_date": ezid_metadata['published_date'],
             "acceptance_date": ezid_metadata['accepted_date'],
-            # TODO: find a correct value for this doi_data, for now, just about anything will work
             "doi_data": {"doi": "10.50505/preprint_sample_doi_2", "resource": "https://escholarship.org/"}
         }
     }
