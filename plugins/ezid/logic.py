@@ -112,6 +112,36 @@ def send_create_request(data, shoulder, username, password, endpoint_url):
                 response += "\n"
             print(response)
 
+def send_update_request(data, update_id, username, password, endpoint_url):
+    ''' sends an update request to EZID '''
+    method = "POST"
+    path = 'id/doi:' + encode(update_id)
+
+    # print('path: ' + path)
+
+    opener = urlreq.build_opener(EzidHTTPErrorProcessor())
+    ezid_handler = urlreq.HTTPBasicAuthHandler()
+    ezid_handler.add_password("EZID", endpoint_url, username, password)
+    opener.add_handler(ezid_handler)
+
+    request = urlreq.Request("%s/%s" % (endpoint_url, path))
+    request.get_method = lambda: method
+    request.add_header("Content-Type", "text/plain; charset=UTF-8")
+    request.data = data.encode("UTF-8")
+
+    try:
+        connection = opener.open(request)
+        response = connection.read()
+        return response.decode("UTF-8")
+
+    except urlreq.HTTPError as ezid_error:
+        print("%d %s\n" % (ezid_error.code, ezid_error.msg))
+        if ezid_error.fp is not None:
+            response = ezid_error.fp.read()
+            if not response.endswith("\n"):
+                response += "\n"
+            print(response)
+
 def encode(txt):
     ''' encode a text string '''
     return quote(txt, ":/")
@@ -159,6 +189,54 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
     # print(payload)
 
     result = send_create_request(payload, ezid_config['shoulder'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
+    return result
+
+def update_doi_via_ezid(ezid_config, ezid_metadata):
+    ''' Sends an update request for the specified config, using the provided data '''
+    # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
+    # ezid_metadata dicitionary contains values for the following keys: update_id, target_url, group_title, contributors, title, published_date, accepted_date
+
+    # pdb.set_trace()
+
+    posted_content = {
+        "posted_content": {
+            "@xmlns": "http://www.crossref.org/schema/4.4.0",
+            "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+            "@xmlns:jats": "http://www.ncbi.nlm.nih.gov/JATS1",
+            "@xsi:schemaLocation": "http://www.crossref.org/schema/4.4.0 http://www.crossref.org/schema/deposit/crossref4.4.0.xsd",
+            "@type": 'preprint',
+            "group_title": ezid_metadata['group_title'],
+            "contributors": ezid_metadata['contributors'],
+            "titles": {
+                "title": ezid_metadata['title']
+            },
+            "posted_date": ezid_metadata['published_date'],
+            "acceptance_date": ezid_metadata['accepted_date'],
+            "doi_data": {"doi": ezid_metadata['update_id'], "resource": ezid_metadata['target_url']}
+        }
+    }
+
+    metadata = unparse(posted_content).replace('\n', '').replace('\r', '')
+
+    # uncomment this to validate the metadata payload
+    # print('\n\n')
+    # print('Using this metadata:')
+    # print('\n\n')
+    # print(unparse(posted_content, pretty=True))
+
+    # # uncomment this and the import pdb in the imports above to crank up the debugger
+    # pdb.set_trace()
+
+    # build the payload
+    payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['owner']
+
+    print('\n\npayload:\n\n')
+    print(payload)
+
+    # pdb.set_trace()
+
+    # result = send_create_request(payload, ezid_config['shoulder'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
+    result = send_update_request(payload, ezid_metadata['update_id'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
     return result
 
 def preprint_publication(**kwargs):
