@@ -230,8 +230,8 @@ def update_doi_via_ezid(ezid_config, ezid_metadata):
     # build the payload
     payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['owner']
 
-    print('\n\npayload:\n\n')
-    print(payload)
+    # print('\n\npayload:\n\n')
+    # print(payload)
 
     # pdb.set_trace()
 
