@@ -32,21 +32,6 @@ ENDPOINT_URL = settings.EZID_ENDPOINT_URL
 # disable to too many branches warning for PyLint
 # pylint: disable=R0912
 
-
-def pubished_doi_to_relation_dict(published_doi):
-    ''' Construct and return a dictionary describing a relation to a VoR DOI '''
-    relation = OrderedDict([('program',
-                             OrderedDict([('@xmlns', 'https://www.crossref.org/relations.xsd'),
-                                          ('related_item',
-                                           OrderedDict([('intra_work_relation',
-                                                         OrderedDict([('@relationship-type',
-                                                                       'isPreprintOf'),
-                                                                      ('@identifier-type',
-                                                                       'doi'),
-                                                                      ('#text',
-                                                                       published_doi)]))]))]))])
-    return relation
-
 def orcid_validation_check(input_string):
     ''' Determine whether the given input_string is a valid ORCID '''
     regex = re.compile('https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}$')
@@ -178,9 +163,6 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
     # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
     # ezid_data dicitionary contains values for the following keys: target_url, group_title, contributors, title, published_date, accepted_date
 
-    # pdb.set_trace()
-
-    # TODO: refactor this to use the posted_content.xml template
 
     template = 'ezid/posted_content.xml'
     template_context = ezid_metadata
@@ -190,6 +172,9 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
 
     metadata = crossref_template.replace('\n', '').replace('\r', '')
 
+    pdb.set_trace()
+
+
     # uncomment this to validate the metadata payload
     print('\n\n')
     print('Using this metadata:')
@@ -197,7 +182,7 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
     print(metadata)
 
     # uncomment this and the import pdb in the imports above to crank up the debugger
-    pdb.set_trace()
+    # pdb.set_trace()
 
     # build the payload
     payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['owner']
@@ -295,12 +280,10 @@ def preprint_publication(**kwargs):
     abstract = preprint.abstract
     accepted_date = {'month':preprint.date_accepted.month, 'day':preprint.date_accepted.day, 'year':preprint.date_accepted.year}
     published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
-    contributors_list = preprintauthors_to_dict(preprint.preprintauthor_set.all())
 
-    # load the contributors list into a dictionary
-    contributors = {
-                "person_name": contributors_list
-                }
+
+    contributors = preprint.preprintauthor_set.all()
+    pdb.set_trace()
 
     #some notes on the metatdata required:
     # [x] target_url (direct link to preprint)

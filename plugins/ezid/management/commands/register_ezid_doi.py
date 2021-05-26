@@ -76,12 +76,7 @@ class Command(BaseCommand):
         title = preprint.title
         accepted_date = {'month':preprint.date_accepted.month, 'day':preprint.date_accepted.day, 'year':preprint.date_accepted.year}
         published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
-        contributors_list = ezid.preprintauthors_to_dict(preprint.preprintauthor_set.all())
-
-        # load the contributors list into a dictionary
-        contributors = {
-            "person_name": contributors_list
-        }
+        contributors = ezid.preprintauthors_to_dict(preprint.preprintauthor_set.all())
 
         #debug breakpoint, use to confirm the metadata gathered above
         # pdb.set_trace()

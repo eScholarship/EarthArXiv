@@ -1,40 +1,42 @@
 <?xml version="1.0"?>
 <posted_content xmlns="http://www.crossref.org/schema/4.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1" xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 http://www.crossref.org/schema/deposit/crossref4.4.0.xsd" type="preprint">
-  <group_title>{{ ezid_metadata.group_title }}</group_title> <!-- subject goes here -->
-  {% if ezid_metadata['contributors'] %}
+  <group_title>{{ group_title }}</group_title>
+  {% if contributors %}
+
   <contributors>
-      {% for contributor in ezid_metadata['contributors'] %}
+      {% for contributor in contributors %}
       <person_name contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
-          <given_name>{{ contributor.first_name }}</given_name>
-          <surname>{{ contributor.last_name }}</surname>
+          <given_name>{{ contributor.given_name }}</given_name>
+          <surname>{{ contributor.surname }}</surname>
           {% if contributor.ORCID %}
-          <ORCID>{ contributor.ORCID }</ORCID>
+          <ORCID>{{ contributor.ORCID }}</ORCID>
+          {% endif %}
       </person_name>
-      {%  endfor %}
+      {% endfor %}
   </contributors>
   {% endif %}
   <titles>
-    <title>{{ ezid_metadata.title }}</title>
+    <title>{{ title }}</title>
   </titles>
-  {% if ezid_metadata['abstract'] %}
+  {% if abstract %}
   <abstract>
-    {% ezid_metadata['abstract'] %}
+    {{ abstract }}
   </abstract>
   {% endif %}
   <posted_date>
-    <month>{% if ezid_metadata['published_date'] %}{{ if ezid_metadata['published_date'].month }}{% else %}{{ now.month }}{% endif %}</month>
-    <day>{% if published_date %}{{ if ezid_metadata['published_date'].day }}{% else %}{{ now.day }}{% endif %}</day>
-    <year>{% if published_date %}{{ if ezid_metadata['published_date'].year }}{% else %}{{ now.year }}{% endif %}</year>
+    <month>{% if published_date %}{{ published_date.month }}{% else %}{{ now.month }}{% endif %}</month>
+    <day>{% if published_date %}{{ published_date.day }}{% else %}{{ now.day }}{% endif %}</day>
+    <year>{% if published_date %}{{ published_date.year }}{% else %}{{ now.year }}{% endif %}</year>
   </posted_date>
   <acceptance_date>
     <month>{% if accepted_date %}{{ accepted_date.month }}{% else %}{{ now.month }}{% endif %}</month>
     <day>{% if accepted_date %}{{ accepted_date.day }}{% else %}{{ now.day }}{% endif %}</day>
     <year>{% if accepted_date %}{{ accepted_date.year }}{% else %}{{ now.year }}{% endif %}</year>
   </acceptance_date>
-  {% if ezid_metadata['published_doi'] %}
+  {% if published_doi %}
   <related_item>
     <!--DOI of the AM / VOR-->
-    <intra_work_relation relationship-type="isPreprintOf" identifier-type="doi">{% ezid_metadata['published_doi'] %}</intra_work_relation>
+    <intra_work_relation relationship-type="isPreprintOf" identifier-type="doi">{{ published_doi }}</intra_work_relation>
   </related_item>
   {% endif %}
   <doi_data>
