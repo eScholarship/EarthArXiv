@@ -76,6 +76,7 @@ class Command(BaseCommand):
         title = preprint.title
         accepted_date = {'month':preprint.date_accepted.month, 'day':preprint.date_accepted.day, 'year':preprint.date_accepted.year}
         published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
+
         contributors = ezid.preprintauthors_to_dict(preprint.preprintauthor_set.all())
 
         #debug breakpoint, use to confirm the metadata gathered above

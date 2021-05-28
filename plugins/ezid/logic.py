@@ -39,21 +39,14 @@ def orcid_validation_check(input_string):
     return bool(match)
 
 def preprintauthors_to_dict(preprint_authors):
+
     ''' returns a list of authors in dictionary format using a list of author objects '''
-    #example: {"@sequence": "first", "@contributor_role": "author", "given_name": "Hardy", "surname": "Pottinger", "ORCID": "https://orcid.org/0000-0001-8549-9354"},
-    count_authors = 0
+    #example: {"given_name": "Hardy", "surname": "Pottinger", "ORCID": "https://orcid.org/0000-0001-8549-9354"},
     author_list = []
     for author in preprint_authors:
-        count_authors = count_authors + 1
-        if count_authors == 1:
-            sequence = 'first'
-        else:
-            sequence = 'additional'
 
         # build our new_author dictionary
         new_author = dict()
-        new_author['@sequence'] = sequence
-        new_author['@contributor_role'] = 'author'
 
         if author.author.first_name:
             new_author['given_name'] = author.author.first_name
@@ -172,7 +165,7 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
 
     metadata = crossref_template.replace('\n', '').replace('\r', '')
 
-    pdb.set_trace()
+    # pdb.set_trace()
 
 
     # uncomment this to validate the metadata payload
@@ -224,7 +217,7 @@ def update_doi_via_ezid(ezid_config, ezid_metadata):
         }
     }
 
-    pdb.set_trace()
+    # pdb.set_trace()
 
     #TODO: refactor this to use the posted_content.xml template
     if ezid_metadata.get('published_doi') is not None:
@@ -282,8 +275,8 @@ def preprint_publication(**kwargs):
     published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
 
 
-    contributors = preprint.preprintauthor_set.all()
-    pdb.set_trace()
+    contributors = preprintauthors_to_dict(preprint.preprintauthor_set.all())
+    # pdb.set_trace()
 
     #some notes on the metatdata required:
     # [x] target_url (direct link to preprint)
