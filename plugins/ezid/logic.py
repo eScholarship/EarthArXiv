@@ -12,8 +12,10 @@ from urllib.parse import quote
 import urllib.request as urlreq
 import json  # use for debugging dictionaries
 from collections import OrderedDict
-import pdb
+# import pdb # use for debugging
 import datetime
+from django.core.validators import URLValidator, ValidationError
+from django.utils import timezone
 from uuid import uuid4
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -38,7 +40,7 @@ def orcid_validation_check(input_string):
     match = regex.match(str(input_string))
     return bool(match)
 
-def preprintauthors_to_dict(preprint_authors):
+def normalize_author_metadata(preprint_authors):
 
     ''' returns a list of authors in dictionary format using a list of author objects '''
     #example: {"given_name": "Hardy", "surname": "Pottinger", "ORCID": "https://orcid.org/0000-0001-8549-9354"},
@@ -165,17 +167,11 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
 
     metadata = crossref_template.replace('\n', '').replace('\r', '')
 
-    # pdb.set_trace()
-
-
     # uncomment this to validate the metadata payload
     print('\n\n')
     print('Using this metadata:')
     print('\n\n')
     print(metadata)
-
-    # uncomment this and the import pdb in the imports above to crank up the debugger
-    # pdb.set_trace()
 
     # build the payload
     payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['owner']
@@ -190,11 +186,6 @@ def update_doi_via_ezid(ezid_config, ezid_metadata):
     ''' Sends an update request for the specified config, using the provided data '''
     # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
     # ezid_metadata dicitionary contains values for the following keys: update_id, target_url, group_title, contributors, title, published_date, accepted_date
-
-    # TODO: use update to merge a new dictionary into the posted_content dictionary https://www.askpython.com/python/dictionary/merge-dictionaries
-    # TODO: https://www.crossref.org/education/content-registration/content-type-markup-guide/posted-content-includes-preprints/#00086 has docs on the VoR relation
-
-    # pdb.set_trace()
 
     posted_content = {
         "posted_content": {
@@ -211,20 +202,18 @@ def update_doi_via_ezid(ezid_config, ezid_metadata):
             "posted_date": ezid_metadata['published_date'],
             "acceptance_date": ezid_metadata['accepted_date'],
             "doi_data": {"doi": ezid_metadata['update_id'], "resource": ezid_metadata['target_url']}
-
-            # TODO: figure out how to add a relation here
-            
         }
     }
 
-    # pdb.set_trace()
-
-    #TODO: refactor this to use the posted_content.xml template
     if ezid_metadata.get('published_doi') is not None:
-        #FIXME: we cannot trust that the published_doi has been validated, or is usable as a URL, so let's do that now
-        posted_content.update(pubished_doi_to_relation_dict(ezid_metadata['published_doi']))
+        #we cannot trust that the published_doi has been validated, or is usable as a URL, so let's do that now
+        logger.debug('validating published_doi')
+        validator = URLValidator()
+        try:
+            validator(ezid_metadata.get('published_doi'))
+        except ValidationError:
+            logger.error('invalid URL, published_doi: %s for preprint: %s', ezid_metadata.get('published_doi'), ezid_metadata.get('target_url'))
 
-    #TODO: the minting method has logic I need to copy here to use a template
 
     template = 'ezid/posted_content.xml'
     template_context = ezid_metadata
@@ -240,16 +229,11 @@ def update_doi_via_ezid(ezid_config, ezid_metadata):
     print('\n\n')
     print(metadata)
 
-    # # uncomment this and the import pdb in the imports above to crank up the debugger
-    # pdb.set_trace()
-
     # build the payload
     payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['owner']
 
     # print('\n\npayload:\n\n')
     # print(payload)
-
-    # pdb.set_trace()
 
     # result = send_create_request(payload, ezid_config['shoulder'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
     result = send_update_request(payload, ezid_metadata['update_id'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
@@ -262,8 +246,6 @@ def preprint_publication(**kwargs):
     preprint = kwargs.get('preprint')
     request = kwargs.get('request')
 
-    # pdb.set_trace()
-
     # gather metadata required for minting a DOI via EZID
     target_url = preprint.url
 
@@ -275,8 +257,7 @@ def preprint_publication(**kwargs):
     published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
 
 
-    contributors = preprintauthors_to_dict(preprint.preprintauthor_set.all())
-    # pdb.set_trace()
+    contributors = normalize_author_metadata(preprint.preprintauthor_set.all())
 
     #some notes on the metatdata required:
     # [x] target_url (direct link to preprint)
@@ -287,8 +268,6 @@ def preprint_publication(**kwargs):
     # [x] title (preprint.title)
     # [x] posted_date (preprint.date_published, is a datetime object)
     # [x] acceptance_date (preprint.date_accepted, is a datetime object)
-
-    # pdb.set_trace() #breakpoint
 
     logger.debug("preprint url: " + target_url)
     logger.debug("title: " + title)
@@ -324,17 +303,15 @@ def preprint_publication(**kwargs):
         logger.error(ezid_result.msg)
 
 # TODO: PUBD-118 fire a metadata update when a new preprint version is created
-def preprint_version_update(**kwargs):
-    ''' hook script for the preprint_version_update event '''
-    logger.debug('>>> preprint_version_update called, update DOI metadata via EZID...')
+# def preprint_version_update(**kwargs):
+#     ''' hook script for the preprint_version_update event '''
+#     logger.debug('>>> preprint_version_update called, update DOI metadata via EZID...')
 
-    preprint = kwargs.get('preprint')
-    request = kwargs.get('request')
+#     preprint = kwargs.get('preprint')
+#     request = kwargs.get('request')
 
-    logger.debug("preprint.id = " + preprint.id)
-    logger.debug("request: " + request)
-
-    # pdb.set_trace()
+#     logger.debug("preprint.id = " + preprint.id)
+#     logger.debug("request: " + request)
 
 def create_crossref_template(identifier):
     ''' create a crossref metadata XML document for a preprint matching the provided identifier '''
@@ -361,17 +338,5 @@ def create_crossref_template(identifier):
         'article_url': identifier.article.url,
         'now': timezone.now(),
     }
-
-    # append citations for i4oc compatibility
-    template_context["citation_list"] = extract_citations_for_crossref(
-        identifier.article)
-
-    # append PDFs for similarity check compatibility
-    pdfs = identifier.article.pdfs
-    if len(pdfs) > 0:
-        template_context['pdf_url'] = identifier.article.pdf_url
-
-    if identifier.article.license:
-        template_context["license"] = identifier.article.license.url
 
     return template_context
