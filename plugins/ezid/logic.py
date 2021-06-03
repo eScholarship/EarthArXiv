@@ -201,10 +201,10 @@ def update_doi_via_ezid(ezid_config, ezid_metadata):
     metadata = crossref_template.replace('\n', '').replace('\r', '')
 
     # uncomment this to validate the metadata payload
-    print('\n\n')
-    print('Using this metadata:')
-    print('\n\n')
-    print(metadata)
+    # print('\n\n')
+    # print('Using this metadata:')
+    # print('\n\n')
+    # print(metadata)
 
     # build the payload
     payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['owner']
