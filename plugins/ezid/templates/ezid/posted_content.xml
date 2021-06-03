@@ -16,7 +16,7 @@
   {% endif %}
   {% if abstract %}
   <jats:abstract>
-    <jats:p>{{ abstract }}</jats:p>
+    <jats:p>{{ abstract|escape }}</jats:p>
   </jats:abstract>
   {% endif %}
   <titles>
