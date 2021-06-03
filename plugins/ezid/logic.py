@@ -10,16 +10,11 @@ __maintainer__ = "California Digital Library"
 import re
 from urllib.parse import quote
 import urllib.request as urlreq
-import json  # use for debugging dictionaries
-from collections import OrderedDict
+import json
 # import pdb # use for debugging
-import datetime
 from django.core.validators import URLValidator, ValidationError
-from django.utils import timezone
-from uuid import uuid4
 from django.conf import settings
 from django.template.loader import render_to_string
-from xmltodict import unparse
 from utils.logger import get_logger
 
 
@@ -168,10 +163,10 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
     metadata = crossref_template.replace('\n', '').replace('\r', '')
 
     # uncomment this to validate the metadata payload
-    print('\n\n')
-    print('Using this metadata:')
-    print('\n\n')
-    print(metadata)
+    # print('\n\n')
+    # print('Using this metadata:')
+    # print('\n\n')
+    # print(metadata)
 
     # build the payload
     payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['owner']
@@ -186,24 +181,6 @@ def update_doi_via_ezid(ezid_config, ezid_metadata):
     ''' Sends an update request for the specified config, using the provided data '''
     # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
     # ezid_metadata dicitionary contains values for the following keys: update_id, target_url, group_title, contributors, title, published_date, accepted_date
-
-    posted_content = {
-        "posted_content": {
-            "@xmlns": "http://www.crossref.org/schema/4.4.0",
-            "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-            "@xmlns:jats": "http://www.ncbi.nlm.nih.gov/JATS1",
-            "@xsi:schemaLocation": "http://www.crossref.org/schema/4.4.0 http://www.crossref.org/schema/deposit/crossref4.4.0.xsd",
-            "@type": 'preprint',
-            "group_title": ezid_metadata['group_title'],
-            "contributors": ezid_metadata['contributors'],
-            "titles": {
-                "title": ezid_metadata['title']
-            },
-            "posted_date": ezid_metadata['published_date'],
-            "acceptance_date": ezid_metadata['accepted_date'],
-            "doi_data": {"doi": ezid_metadata['update_id'], "resource": ezid_metadata['target_url']}
-        }
-    }
 
     if ezid_metadata.get('published_doi') is not None:
         #we cannot trust that the published_doi has been validated, or is usable as a URL, so let's do that now
@@ -312,31 +289,3 @@ def preprint_publication(**kwargs):
 
 #     logger.debug("preprint.id = " + preprint.id)
 #     logger.debug("request: " + request)
-
-def create_crossref_template(identifier):
-    ''' create a crossref metadata XML document for a preprint matching the provided identifier '''
-    from utils import setting_handler
-    template_context = {
-        'batch_id': uuid4(),
-        'timestamp': int(round((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds())),
-        'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name',
-                                                      identifier.article.journal).processed_value,
-        'depositor_email': setting_handler.get_setting('Identifiers', 'crossref_email',
-                                                       identifier.article.journal).processed_value,
-        'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant',
-                                                  identifier.article.journal).processed_value,
-        'journal_title': identifier.article.journal.name,
-        'journal_issn': identifier.article.journal.issn,
-        'date_published': identifier.article.date_published,
-        'issue': identifier.article.issue,
-        'article_title': '{0}{1}{2}'.format(
-            identifier.article.title,
-            ' ' if identifier.article.subtitle is not None else '',
-            identifier.article.subtitle if identifier.article.subtitle is not None else ''),
-        'authors': identifier.article.authors.all(),
-        'doi': identifier.identifier,
-        'article_url': identifier.article.url,
-        'now': timezone.now(),
-    }
-
-    return template_context
