@@ -2,7 +2,6 @@
 <posted_content xmlns="http://www.crossref.org/schema/4.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1" xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 http://www.crossref.org/schema/deposit/crossref4.4.0.xsd" type="preprint">
   <group_title>{{ group_title }}</group_title>
   {% if contributors %}
-
   <contributors>
       {% for contributor in contributors %}
       <person_name contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
@@ -15,14 +14,14 @@
       {% endfor %}
   </contributors>
   {% endif %}
+  {% if abstract %}
+  <jats:abstract>
+    <jats:p>{{ abstract }}</jats:p>
+  </jats:abstract>
+  {% endif %}
   <titles>
     <title>{{ title }}</title>
   </titles>
-  {% if abstract %}
-  <abstract>
-    {{ abstract }}
-  </abstract>
-  {% endif %}
   <posted_date>
     <month>{% if published_date %}{{ published_date.month }}{% else %}{{ now.month }}{% endif %}</month>
     <day>{% if published_date %}{{ published_date.day }}{% else %}{{ now.day }}{% endif %}</day>
