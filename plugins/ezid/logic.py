@@ -153,6 +153,16 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
     # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
     # ezid_data dicitionary contains values for the following keys: target_url, group_title, contributors, title, published_date, accepted_date
 
+    if ezid_metadata.get('published_doi') is not None:
+        #we cannot trust that the published_doi has been validated, or is usable as a URL, so let's do that now
+        logger.debug('validating published_doi')
+        validator = URLValidator()
+        try:
+            validator(ezid_metadata.get('published_doi'))
+        except ValidationError:
+            logger.error('invalid URL, published_doi: %s for preprint: %s', ezid_metadata.get('published_doi'), ezid_metadata.get('target_url'))
+            del ezid_metadata['published_doi'] # this is not a permanent deletion
+
 
     template = 'ezid/posted_content.xml'
     template_context = ezid_metadata
@@ -190,6 +200,7 @@ def update_doi_via_ezid(ezid_config, ezid_metadata):
             validator(ezid_metadata.get('published_doi'))
         except ValidationError:
             logger.error('invalid URL, published_doi: %s for preprint: %s', ezid_metadata.get('published_doi'), ezid_metadata.get('target_url'))
+            del ezid_metadata['published_doi'] # this is not a permanent deletion
 
 
     template = 'ezid/posted_content.xml'
