@@ -5,8 +5,8 @@
   <contributors>
       {% for contributor in contributors %}
       <person_name contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
-          <given_name>{{ contributor.given_name|escape }}</given_name>
-          <surname>{{ contributor.surname|escape }}</surname>
+          <given_name>{{ contributor.given_name|striptags|escape }}</given_name>
+          <surname>{{ contributor.surname|striptags|escape }}</surname>
           {% if contributor.ORCID %}
           <ORCID>{{ contributor.ORCID }}</ORCID>
           {% endif %}
@@ -16,11 +16,11 @@
   {% endif %}
   {% if abstract %}
   <jats:abstract>
-    <jats:p>{{ abstract|escape }}</jats:p>
+    <jats:p>{{ abstract|striptags|escape }}</jats:p>
   </jats:abstract>
   {% endif %}
   <titles>
-    <title>{{ title|escape }}</title>
+    <title>{{ title|striptags|escape }}</title>
   </titles>
   <posted_date>
     <month>{% if published_date %}{{ published_date.month }}{% else %}{{ now.month }}{% endif %}</month>
