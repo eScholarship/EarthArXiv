@@ -79,6 +79,7 @@ class Command(BaseCommand):
 
         group_title = preprint.subject.values_list()[0][2]
         title = preprint.title
+        abstract = preprint.abstract
         published_doi = preprint.doi
         accepted_date = {'month':preprint.date_accepted.month, 'day':preprint.date_accepted.day, 'year':preprint.date_accepted.year}
         published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
@@ -97,6 +98,7 @@ class Command(BaseCommand):
                          'group_title': group_title,
                          'contributors': contributors,
                          'title': title,
+                         'abstract': abstract,
                          'published_doi': published_doi,
                          'published_date': published_date,
                          'accepted_date': accepted_date}
