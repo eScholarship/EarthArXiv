@@ -1,3 +1,7 @@
+"""
+Janeway Management command for updating metadata for existing DOIs for the EZID plugin
+"""
+
 import re
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -75,20 +79,29 @@ class Command(BaseCommand):
 
         group_title = preprint.subject.values_list()[0][2]
         title = preprint.title
+        abstract = preprint.abstract
+        published_doi = preprint.doi
         accepted_date = {'month':preprint.date_accepted.month, 'day':preprint.date_accepted.day, 'year':preprint.date_accepted.year}
         published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
-        contributors_list = ezid.preprintauthors_to_dict(preprint.preprintauthor_set.all())
-
-        # load the contributors list into a dictionary
-        contributors = {
-            "person_name": contributors_list
-        }
+        contributors = ezid.normalize_author_metadata(preprint.preprintauthor_set.all())
 
         #debug breakpoint, use to confirm the metadata gathered above
         # pdb.set_trace()
 
-        ezid_config = {'shoulder': SHOULDER, 'username': USERNAME, 'password': PASSWORD, 'endpoint_url': ENDPOINT_URL, 'owner': OWNER}
-        ezid_metadata = {'update_id': preprint.preprint_doi, 'target_url': target_url, 'group_title': group_title, 'contributors': contributors, 'title': title, 'published_date': published_date, 'accepted_date': accepted_date}
+        ezid_config = {'shoulder': SHOULDER,
+                       'username': USERNAME,
+                       'password': PASSWORD,
+                       'endpoint_url': ENDPOINT_URL,
+                       'owner': OWNER}
+        ezid_metadata = {'update_id': preprint.preprint_doi,
+                         'target_url': target_url,
+                         'group_title': group_title,
+                         'contributors': contributors,
+                         'title': title,
+                         'abstract': abstract,
+                         'published_doi': published_doi,
+                         'published_date': published_date,
+                         'accepted_date': accepted_date}
 
         ezid_result = ezid.update_doi_via_ezid(ezid_config, ezid_metadata)
 

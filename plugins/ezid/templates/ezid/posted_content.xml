@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<posted_content xmlns="http://www.crossref.org/schema/4.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1" xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 http://www.crossref.org/schema/deposit/crossref4.4.0.xsd" type="preprint">
+  <group_title>{{ group_title|escape }}</group_title>
+  {% if contributors %}
+  <contributors>
+      {% for contributor in contributors %}
+      <person_name contributor_role="author" {% if forloop.first %}sequence="first"{% else %}sequence="additional"{% endif %}>
+          <given_name>{{ contributor.given_name|striptags|escape }}</given_name>
+          <surname>{{ contributor.surname|striptags|escape }}</surname>
+          {% if contributor.ORCID %}
+          <ORCID>{{ contributor.ORCID }}</ORCID>
+          {% endif %}
+      </person_name>
+      {% endfor %}
+  </contributors>
+  {% endif %}
+  {% if abstract %}
+  <jats:abstract>
+    <jats:p>{{ abstract|striptags|escape }}</jats:p>
+  </jats:abstract>
+  {% endif %}
+  <titles>
+    <title>{{ title|striptags|escape }}</title>
+  </titles>
+  <posted_date>
+    <month>{% if published_date %}{{ published_date.month }}{% else %}{{ now.month }}{% endif %}</month>
+    <day>{% if published_date %}{{ published_date.day }}{% else %}{{ now.day }}{% endif %}</day>
+    <year>{% if published_date %}{{ published_date.year }}{% else %}{{ now.year }}{% endif %}</year>
+  </posted_date>
+  <acceptance_date>
+    <month>{% if accepted_date %}{{ accepted_date.month }}{% else %}{{ now.month }}{% endif %}</month>
+    <day>{% if accepted_date %}{{ accepted_date.day }}{% else %}{{ now.day }}{% endif %}</day>
+    <year>{% if accepted_date %}{{ accepted_date.year }}{% else %}{{ now.year }}{% endif %}</year>
+  </acceptance_date>
+  {% if published_doi %}
+  <related_item>
+    <!--DOI of the AM / VOR-->
+    <intra_work_relation relationship-type="isPreprintOf" identifier-type="doi">{{ published_doi }}</intra_work_relation>
+  </related_item>
+  {% endif %}
+  {% if update_id %}
+  <doi_data>
+    <doi>{{ update_id }}</doi>
+    <resource>{{ target_url }}</resource>
+  </doi_data>
+  {% else %}
+  <!-- placeholder DOI, will be overwritten when DOI is minted -->
+  <doi_data>
+    <doi>10.50505/preprint_sample_doi_2</doi>
+    <resource>https://escholarship.org/</resource>
+  </doi_data>
+  {% endif %}
+</posted_content>

@@ -1,3 +1,7 @@
+"""
+This module contains the logic for the EZID plugin for Janeway
+"""
+
 __copyright__ = "Copyright (c) 2020, The Regents of the University of California"
 __author__ = "Hardy Pottinger & Mahjabeen Yucekul"
 __license__ = "BSD 3-Clause"
@@ -6,11 +10,13 @@ __maintainer__ = "California Digital Library"
 import re
 from urllib.parse import quote
 import urllib.request as urlreq
-import json #use for debugging dictionaries
-# import pdb
+import json
+# import pdb # use for debugging
+from django.core.validators import URLValidator, ValidationError
 from django.conf import settings
-from xmltodict import unparse
+from django.template.loader import render_to_string
 from utils.logger import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -20,28 +26,24 @@ PASSWORD = settings.EZID_PASSWORD
 OWNER = settings.EZID_OWNER
 ENDPOINT_URL = settings.EZID_ENDPOINT_URL
 
+# disable to too many branches warning for PyLint
+# pylint: disable=R0912
+
 def orcid_validation_check(input_string):
     ''' Determine whether the given input_string is a valid ORCID '''
     regex = re.compile('https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}$')
     match = regex.match(str(input_string))
     return bool(match)
 
-def preprintauthors_to_dict(preprint_authors):
+def normalize_author_metadata(preprint_authors):
+
     ''' returns a list of authors in dictionary format using a list of author objects '''
-    #example: {"@sequence": "first", "@contributor_role": "author", "given_name": "Hardy", "surname": "Pottinger", "ORCID": "https://orcid.org/0000-0001-8549-9354"},
-    count_authors = 0
+    #example: {"given_name": "Hardy", "surname": "Pottinger", "ORCID": "https://orcid.org/0000-0001-8549-9354"},
     author_list = []
     for author in preprint_authors:
-        count_authors = count_authors + 1
-        if count_authors == 1:
-            sequence = 'first'
-        else:
-            sequence = 'additional'
 
         # build our new_author dictionary
         new_author = dict()
-        new_author['@sequence'] = sequence
-        new_author['@contributor_role'] = 'author'
 
         if author.author.first_name:
             new_author['given_name'] = author.author.first_name
@@ -151,36 +153,30 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
     # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
     # ezid_data dicitionary contains values for the following keys: target_url, group_title, contributors, title, published_date, accepted_date
 
-    # pdb.set_trace()
+    if ezid_metadata.get('published_doi') is not None:
+        #we cannot trust that the published_doi has been validated, or is usable as a URL, so let's do that now
+        logger.debug('validating published_doi')
+        validator = URLValidator()
+        try:
+            validator(ezid_metadata.get('published_doi'))
+        except ValidationError:
+            logger.error('invalid URL, published_doi: %s for preprint: %s', ezid_metadata.get('published_doi'), ezid_metadata.get('target_url'))
+            del ezid_metadata['published_doi'] # this is not a permanent deletion
 
-    posted_content = {
-        "posted_content": {
-            "@xmlns": "http://www.crossref.org/schema/4.4.0",
-            "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-            "@xmlns:jats": "http://www.ncbi.nlm.nih.gov/JATS1",
-            "@xsi:schemaLocation": "http://www.crossref.org/schema/4.4.0 http://www.crossref.org/schema/deposit/crossref4.4.0.xsd",
-            "@type": 'preprint',
-            "group_title": ezid_metadata['group_title'],
-            "contributors": ezid_metadata['contributors'],
-            "titles": {
-                "title": ezid_metadata['title']
-            },
-            "posted_date": ezid_metadata['published_date'],
-            "acceptance_date": ezid_metadata['accepted_date'],
-            "doi_data": {"doi": "10.50505/preprint_sample_doi_2", "resource": "https://escholarship.org/"}
-        }
-    }
 
-    metadata = unparse(posted_content).replace('\n', '').replace('\r', '')
+    template = 'ezid/posted_content.xml'
+    template_context = ezid_metadata
+    crossref_template = render_to_string(template, template_context)
+
+    logger.debug(crossref_template)
+
+    metadata = crossref_template.replace('\n', '').replace('\r', '')
 
     # uncomment this to validate the metadata payload
     # print('\n\n')
     # print('Using this metadata:')
     # print('\n\n')
-    # print(unparse(posted_content, pretty=True))
-
-    # # uncomment this and the import pdb in the imports above to crank up the debugger
-    # pdb.set_trace()
+    # print(metadata)
 
     # build the payload
     payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['owner']
@@ -196,44 +192,36 @@ def update_doi_via_ezid(ezid_config, ezid_metadata):
     # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
     # ezid_metadata dicitionary contains values for the following keys: update_id, target_url, group_title, contributors, title, published_date, accepted_date
 
-    # pdb.set_trace()
+    if ezid_metadata.get('published_doi') is not None:
+        #we cannot trust that the published_doi has been validated, or is usable as a URL, so let's do that now
+        logger.debug('validating published_doi')
+        validator = URLValidator()
+        try:
+            validator(ezid_metadata.get('published_doi'))
+        except ValidationError:
+            logger.error('invalid URL, published_doi: %s for preprint: %s', ezid_metadata.get('published_doi'), ezid_metadata.get('target_url'))
+            del ezid_metadata['published_doi'] # this is not a permanent deletion
 
-    posted_content = {
-        "posted_content": {
-            "@xmlns": "http://www.crossref.org/schema/4.4.0",
-            "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-            "@xmlns:jats": "http://www.ncbi.nlm.nih.gov/JATS1",
-            "@xsi:schemaLocation": "http://www.crossref.org/schema/4.4.0 http://www.crossref.org/schema/deposit/crossref4.4.0.xsd",
-            "@type": 'preprint',
-            "group_title": ezid_metadata['group_title'],
-            "contributors": ezid_metadata['contributors'],
-            "titles": {
-                "title": ezid_metadata['title']
-            },
-            "posted_date": ezid_metadata['published_date'],
-            "acceptance_date": ezid_metadata['accepted_date'],
-            "doi_data": {"doi": ezid_metadata['update_id'], "resource": ezid_metadata['target_url']}
-        }
-    }
 
-    metadata = unparse(posted_content).replace('\n', '').replace('\r', '')
+    template = 'ezid/posted_content.xml'
+    template_context = ezid_metadata
+    crossref_template = render_to_string(template, template_context)
+
+    logger.debug(crossref_template)
+
+    metadata = crossref_template.replace('\n', '').replace('\r', '')
 
     # uncomment this to validate the metadata payload
     # print('\n\n')
     # print('Using this metadata:')
     # print('\n\n')
-    # print(unparse(posted_content, pretty=True))
-
-    # # uncomment this and the import pdb in the imports above to crank up the debugger
-    # pdb.set_trace()
+    # print(metadata)
 
     # build the payload
     payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['owner']
 
     # print('\n\npayload:\n\n')
     # print(payload)
-
-    # pdb.set_trace()
 
     # result = send_create_request(payload, ezid_config['shoulder'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
     result = send_update_request(payload, ezid_metadata['update_id'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
@@ -251,14 +239,13 @@ def preprint_publication(**kwargs):
 
     group_title = preprint.subject.values_list()[0][2]
     title = preprint.title
+    published_doi = preprint.doi
+    abstract = preprint.abstract
     accepted_date = {'month':preprint.date_accepted.month, 'day':preprint.date_accepted.day, 'year':preprint.date_accepted.year}
     published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
-    contributors_list = preprintauthors_to_dict(preprint.preprintauthor_set.all())
 
-    # load the contributors list into a dictionary
-    contributors = {
-                "person_name": contributors_list
-                }
+
+    contributors = normalize_author_metadata(preprint.preprintauthor_set.all())
 
     #some notes on the metatdata required:
     # [x] target_url (direct link to preprint)
@@ -269,8 +256,6 @@ def preprint_publication(**kwargs):
     # [x] title (preprint.title)
     # [x] posted_date (preprint.date_published, is a datetime object)
     # [x] acceptance_date (preprint.date_accepted, is a datetime object)
-
-    # pdb.set_trace() #breakpoint
 
     logger.debug("preprint url: " + target_url)
     logger.debug("title: " + title)
@@ -283,7 +268,7 @@ def preprint_publication(**kwargs):
 
     # prepare two dictionaries to feed into the mint_doi_via_ezid function
     ezid_config = {'shoulder': SHOULDER, 'username': USERNAME, 'password': PASSWORD, 'endpoint_url': ENDPOINT_URL, 'owner': OWNER}
-    ezid_metadata = {'target_url': target_url, 'group_title': group_title, 'contributors': contributors, 'title': title, 'published_date': published_date, 'accepted_date': accepted_date}
+    ezid_metadata = {'target_url': target_url, 'group_title': group_title, 'contributors': contributors, 'title': title, 'published_date': published_date, 'accepted_date': accepted_date, 'published_doi': published_doi, 'abstract': abstract}
 
     logger.debug('ezid_config: ' + json.dumps(ezid_config))
     logger.debug('ezid_metadata: '+ json.dumps(ezid_metadata))
@@ -304,3 +289,14 @@ def preprint_publication(**kwargs):
     else:
         logger.error('EZID DOI creation failed for preprint.pk: ' + preprint.pk + ' ...')
         logger.error(ezid_result.msg)
+
+# TODO: PUBD-118 fire a metadata update when a new preprint version is created
+# def preprint_version_update(**kwargs):
+#     ''' hook script for the preprint_version_update event '''
+#     logger.debug('>>> preprint_version_update called, update DOI metadata via EZID...')
+
+#     preprint = kwargs.get('preprint')
+#     request = kwargs.get('request')
+
+#     logger.debug("preprint.id = " + preprint.id)
+#     logger.debug("request: " + request)
