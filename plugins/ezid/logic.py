@@ -88,7 +88,7 @@ class EzidHTTPErrorProcessor(urlreq.HTTPErrorProcessor):
 def send_create_request(data, shoulder, username, password, endpoint_url):
     ''' sends a create request to EZID '''
     method = "POST"
-    path = '/shoulder/' + encode(shoulder)
+    path = 'shoulder/' + encode(shoulder)
 
     opener = urlreq.build_opener(EzidHTTPErrorProcessor())
     ezid_handler = urlreq.HTTPBasicAuthHandler()
@@ -110,8 +110,9 @@ def send_create_request(data, shoulder, username, password, endpoint_url):
         print("%d %s\n" % (ezid_error.code, ezid_error.msg))
         if ezid_error.fp is not None:
             response = ezid_error.fp.read()
-            if not response.endswith("\n"):
-                response += "\n"
+           # FIXME: this code throws errors, endswith doesn't work with response
+           # if not response.endswith("\n"):
+           #     response += "\n"
             print(response)
 
 def send_update_request(data, update_id, username, password, endpoint_url):
@@ -238,9 +239,9 @@ def preprint_publication(**kwargs):
     target_url = preprint.url
 
     group_title = preprint.subject.values_list()[0][2]
-    title = preprint.title
+    title = preprint.title.replace('%', '%25')
     published_doi = preprint.doi
-    abstract = preprint.abstract
+    abstract = preprint.abstract.replace('%', '%25')
     accepted_date = {'month':preprint.date_accepted.month, 'day':preprint.date_accepted.day, 'year':preprint.date_accepted.year}
     published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
 

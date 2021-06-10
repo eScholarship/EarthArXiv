@@ -66,8 +66,8 @@ class Command(BaseCommand):
             target_url = first_press.repository_path_url(repo, preprint.local_url)
 
         group_title = preprint.subject.values_list()[0][2]
-        title = preprint.title
-        abstract = preprint.abstract
+        title = preprint.title.replace('%', '%25')
+        abstract = preprint.abstract.replace('%', '%25')
         published_doi = preprint.doi
         accepted_date = {'month':preprint.date_accepted.month, 'day':preprint.date_accepted.day, 'year':preprint.date_accepted.year}
         published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
@@ -105,5 +105,5 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR('EZID DOI creation failed for preprint.pk: ' + preprint.pk + ' ...'))
                 self.stdout.write(self.style.ERROR('ezid_result: ' + ezid_result))
         else:
-            self.stdout.write(self.style.ERROR('EZID DOI creation failed for preprint.pk: ' + preprint.pk + ' ...'))
+            self.stdout.write(self.style.ERROR('EZID DOI creation failed for preprint.pk: ' + str(preprint.pk) + ' ...'))
             self.stdout.write(self.style.ERROR(ezid_result.msg))
