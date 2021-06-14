@@ -14,11 +14,6 @@
       {% endfor %}
   </contributors>
   {% endif %}
-  {% if abstract %}
-  <jats:abstract>
-    <jats:p>{{ abstract|striptags|escape }}</jats:p>
-  </jats:abstract>
-  {% endif %}
   <titles>
     <title>{{ title|striptags|escape }}</title>
   </titles>
@@ -32,6 +27,11 @@
     <day>{% if accepted_date %}{{ accepted_date.day }}{% else %}{{ now.day }}{% endif %}</day>
     <year>{% if accepted_date %}{{ accepted_date.year }}{% else %}{{ now.year }}{% endif %}</year>
   </acceptance_date>
+  {% if abstract %}
+  <jats:abstract>
+    <jats:p>{{ abstract|striptags|escape }}</jats:p>
+  </jats:abstract>
+  {% endif %}
   {% if published_doi %}
   <related_item>
     <!--DOI of the AM / VOR-->
