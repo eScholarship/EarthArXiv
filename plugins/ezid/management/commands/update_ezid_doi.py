@@ -78,8 +78,8 @@ class Command(BaseCommand):
         # pdb.set_trace()
 
         group_title = preprint.subject.values_list()[0][2]
-        title = preprint.title
-        abstract = preprint.abstract
+        title = preprint.title.replace('%', '%25')
+        abstract = preprint.abstract.replace('%', '%25')
         published_doi = preprint.doi
         accepted_date = {'month':preprint.date_accepted.month, 'day':preprint.date_accepted.day, 'year':preprint.date_accepted.year}
         published_date = {'month':preprint.date_published.month, 'day':preprint.date_published.day, 'year':preprint.date_published.year}
