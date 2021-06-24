@@ -18,14 +18,14 @@ OWNER = settings.EZID_OWNER
 ENDPOINT_URL = settings.EZID_ENDPOINT_URL
 
 class Command(BaseCommand):
-    """ Takes a preprint ID and updates the associated DOI metadata via EZID, if the preprint has a DOI, AND if the preprint is accepted """
+    """ Takes a preprint ID or DOI URL and updates the associated DOI metadata via EZID, if the preprint has a DOI, AND if the preprint is accepted """
     help = "Updates the DOI metadata for the provided preprint ID."
 
     def add_arguments(self, parser):
         parser.add_argument(
             "short_name", help="`short_name` for the repository containing the preprint for which we need to mint a DOI", type=str)
         parser.add_argument(
-            "preprint_id", help="`id` of preprint needing a DOI to be minted", type=str
+            "preprint_id", help="`id` of preprint needing a DOI to be minted, OR a complete DOI URL", type=str
         )
 
     def handle(self, *args, **options):
