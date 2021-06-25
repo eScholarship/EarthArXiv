@@ -3,6 +3,7 @@ Janeway Management command for updating metadata for existing DOIs for the EZID 
 """
 
 import re
+from urllib.parse import urlparse
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from plugins.ezid import logic as ezid
@@ -17,14 +18,14 @@ OWNER = settings.EZID_OWNER
 ENDPOINT_URL = settings.EZID_ENDPOINT_URL
 
 class Command(BaseCommand):
-    """ Takes a preprint ID and updates the associated DOI metadata via EZID, if the preprint has a DOI, AND if the preprint is accepted """
+    """ Takes a preprint ID or DOI URL and updates the associated DOI metadata via EZID, if the preprint has a DOI, AND if the preprint is accepted """
     help = "Updates the DOI metadata for the provided preprint ID."
 
     def add_arguments(self, parser):
         parser.add_argument(
             "short_name", help="`short_name` for the repository containing the preprint for which we need to mint a DOI", type=str)
         parser.add_argument(
-            "preprint_id", help="`id` of preprint needing a DOI to be minted", type=str
+            "preprint_id", help="`id` of preprint needing a DOI to be minted, OR a complete DOI URL", type=str
         )
 
     def handle(self, *args, **options):
@@ -32,7 +33,7 @@ class Command(BaseCommand):
         short_name = options.get('short_name')
         preprint_id = options['preprint_id']
 
-        self.stdout.write("Attempting to update DOI metadata for preprint_id=" + preprint_id)
+        self.stdout.write("Attempting to update DOI metadata for preprint " + preprint_id)
 
         try:
             repo = models.Repository.objects.get(
@@ -41,11 +42,26 @@ class Command(BaseCommand):
         except models.Repository.DoesNotExist:
             exit('No repository found.')
 
-        try:
-            # get the preprint that matches the provided preprint_id
-            preprint = models.Preprint.objects.get(repository=repo, pk=preprint_id)
-        except models.Preprint.DoesNotExist:
-            exit('No preprint found with preprint_id=' + preprint_id)
+        # determine whether we've been given a DOI, and if so, find the matching preprint
+        if preprint_id.startswith('http'):
+            # pdb.set_trace()
+            try:
+                # get the preprint that matches the provided preprint_doi(in the preprint_id param)
+                doiURL = urlparse(preprint_id)
+                # pdb.set_trace()
+                # grab just the path from the provided URL, and chop off the first character, BOOM, there's your DOI
+                preprint_doi = doiURL.path[1:]
+
+                preprint = models.Preprint.objects.get(repository=repo, preprint_doi=preprint_doi)
+
+            except models.Preprint.DoesNotExist:
+                exit('No preprint found with preprint_doi=' + preprint_id)
+        else:
+            try:
+                # get the preprint that matches the provided preprint_id
+                preprint = models.Preprint.objects.get(repository=repo, pk=preprint_id)
+            except models.Preprint.DoesNotExist:
+                exit('No preprint found with preprint_id=' + preprint_id)
 
 
         #debug breakpoint, use to inspect the objects instantiated above
