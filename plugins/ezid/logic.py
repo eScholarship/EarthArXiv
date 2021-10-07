@@ -45,33 +45,34 @@ def normalize_author_metadata(preprint_authors):
         # build our new_author dictionary
         new_author = dict()
 
-        if author.author.first_name:
-            new_author['given_name'] = author.author.first_name
-        else:
-            logger.info('EZID: missing author first name encountered, omitting given_name from EZID minting request...')
-
-        if author.author.last_name:
-            new_author['surname'] = author.author.last_name
-        else:
-            logger.info('EZID: missing author last name encountered, attempting to use first name as surname in EZID minting request, since surname is mandatory...')
+        if author.author:
             if author.author.first_name:
-                new_author['surname'] = author.author.first_name
-                del new_author['given_name']
+                new_author['given_name'] = author.author.first_name
             else:
-                logger.warning('EZID: no usable name found for author...')
+                logger.info('EZID: missing author first name encountered, omitting given_name from EZID minting request...')
 
-        if author.author.orcid:
-            if author.author.orcid.startswith('http'):
-                usable_orcid = author.author.orcid
+            if author.author.last_name:
+                new_author['surname'] = author.author.last_name
             else:
-                usable_orcid = 'https://orcid.org/' + author.author.orcid
+                logger.info('EZID: missing author last name encountered, attempting to use first name as surname in EZID minting request, since surname is mandatory...')
+                if author.author.first_name:
+                    new_author['surname'] = author.author.first_name
+                    del new_author['given_name']
+                else:
+                    logger.warning('EZID: no usable name found for author...')
 
-            if orcid_validation_check(usable_orcid):
-                new_author['ORCID'] = usable_orcid
-            else:
-                logger.warning('EZID: unsuable ORCID value of "' + usable_orcid + '" encountered, omitting from EZID minting request...')
+            if author.author.orcid:
+                if author.author.orcid.startswith('http'):
+                    usable_orcid = author.author.orcid
+                else:
+                    usable_orcid = 'https://orcid.org/' + author.author.orcid
 
-        author_list.append(new_author)
+                if orcid_validation_check(usable_orcid):
+                    new_author['ORCID'] = usable_orcid
+                else:
+                    logger.warning('EZID: unsuable ORCID value of "' + usable_orcid + '" encountered, omitting from EZID minting request...')
+
+            author_list.append(new_author)
 
     return author_list
 
