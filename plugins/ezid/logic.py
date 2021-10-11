@@ -45,27 +45,35 @@ def normalize_author_metadata(preprint_authors):
         # build our new_author dictionary
         new_author = dict()
 
-        if author.author:
-            if author.author.first_name:
-                new_author['given_name'] = author.author.first_name
+        # Newer versions of Janeway use account objects instead of author objects, let's check author first, then try account
+        if author.author is not None:
+            contributor = author.author
+        else:
+            contributor = author.account
+
+        if contributor is None:
+            logger.warn('A Preprintauthor.account object is None, this shouldn't be possible... skipping null author.')
+        else:
+            if contributor.first_name:
+                new_author['given_name'] = contributor.first_name
             else:
                 logger.info('EZID: missing author first name encountered, omitting given_name from EZID minting request...')
 
-            if author.author.last_name:
-                new_author['surname'] = author.author.last_name
+            if contributor.last_name:
+                new_author['surname'] = contributor.last_name
             else:
                 logger.info('EZID: missing author last name encountered, attempting to use first name as surname in EZID minting request, since surname is mandatory...')
-                if author.author.first_name:
-                    new_author['surname'] = author.author.first_name
+                if contributor.first_name:
+                    new_author['surname'] = contributor.first_name
                     del new_author['given_name']
                 else:
                     logger.warning('EZID: no usable name found for author...')
 
-            if author.author.orcid:
-                if author.author.orcid.startswith('http'):
-                    usable_orcid = author.author.orcid
+            if contributor.orcid:
+                if contributor.orcid.startswith('http'):
+                    usable_orcid = contributor.orcid
                 else:
-                    usable_orcid = 'https://orcid.org/' + author.author.orcid
+                    usable_orcid = 'https://orcid.org/' + contributor.orcid
 
                 if orcid_validation_check(usable_orcid):
                     new_author['ORCID'] = usable_orcid
