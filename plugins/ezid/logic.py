@@ -52,7 +52,7 @@ def normalize_author_metadata(preprint_authors):
             contributor = author.account
 
         if contributor is None:
-            logger.warn('A Preprintauthor.account object is None, this shouldn't be possible... skipping null author.')
+            logger.warn('A Preprintauthor.account object is None, this should not be possible... skipping null author.')
         else:
             if contributor.first_name:
                 new_author['given_name'] = contributor.first_name
