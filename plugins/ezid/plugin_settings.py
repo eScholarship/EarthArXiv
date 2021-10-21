@@ -43,9 +43,6 @@ def install():
 
     if created:
         print('Plugin {0} installed.'.format(PLUGIN_NAME))
-        update_settings(
-            file_path='plugins/doaj_transporter/install/settings.json'
-        )
     elif plugin.version != VERSION:
         print('Plugin updated: {0} -> {1}'.format(VERSION, plugin.version))
         plugin.version = VERSION
