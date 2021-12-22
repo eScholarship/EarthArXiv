@@ -14,6 +14,7 @@ import json
 # import pdb # use for debugging
 from django.core.validators import URLValidator, ValidationError
 from django.conf import settings
+from django.utils import timezone
 from django.template.loader import render_to_string
 from utils.logger import get_logger
 
@@ -159,6 +160,9 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
     # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
     # ezid_data dicitionary contains values for the following keys: target_url, group_title, contributors, title, published_date, accepted_date
 
+    # add a timestamp to our metadata, we'll need it
+    ezid_metadata['now'] = timezone.now()
+
     if ezid_metadata.get('published_doi') is not None:
         #we cannot trust that the published_doi has been validated, or is usable as a URL, so let's do that now
         logger.debug('validating published_doi')
@@ -197,6 +201,9 @@ def update_doi_via_ezid(ezid_config, ezid_metadata):
     ''' Sends an update request for the specified config, using the provided data '''
     # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
     # ezid_metadata dicitionary contains values for the following keys: update_id, target_url, group_title, contributors, title, published_date, accepted_date
+
+    # add a timestamp to our metadata, we'll need it
+    ezid_metadata['now'] = timezone.now()
 
     if ezid_metadata.get('published_doi') is not None:
         #we cannot trust that the published_doi has been validated, or is usable as a URL, so let's do that now
