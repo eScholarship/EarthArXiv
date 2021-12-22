@@ -45,11 +45,7 @@ def normalize_author_metadata(preprint_authors):
         # build our new_author dictionary
         new_author = dict()
 
-        # Newer versions of Janeway use account objects instead of author objects, let's check author first, then try account
-        if author.author is not None:
-            contributor = author.author
-        else:
-            contributor = author.account
+        contributor = author.account
 
         if contributor is None:
             logger.warn('A Preprintauthor.account object is None, this should not be possible... skipping null author.')
