@@ -18,9 +18,9 @@
     <title>{{ title|striptags|escape }}</title>
   </titles>
   <posted_date>
-    <month>{% if published_date %}{{ published_date.month }}{% else %}{{ now.month }}{% endif %}</month>
-    <day>{% if published_date %}{{ published_date.day }}{% else %}{{ now.day }}{% endif %}</day>
-    <year>{% if published_date %}{{ published_date.year }}{% else %}{{ now.year }}{% endif %}</year>
+    <month>{{ now.month }}</month>
+    <day>{{ now.day }}</day>
+    <year>{{ now.year }}</year>
   </posted_date>
   <acceptance_date>
     <month>{% if accepted_date %}{{ accepted_date.month }}{% else %}{{ now.month }}{% endif %}</month>
