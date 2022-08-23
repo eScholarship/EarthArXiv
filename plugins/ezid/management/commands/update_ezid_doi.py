@@ -119,7 +119,7 @@ class Command(BaseCommand):
                          'published_date': published_date,
                          'accepted_date': accepted_date}
 
-        ezid_result = ezid.update_doi_via_ezid(ezid_config, ezid_metadata)
+        ezid_result = ezid.update_doi_via_ezid(ezid_config, ezid_metadata, 'ezid/posted_content.xml')
 
         # if the ezid_result is a string, it's probably a success, check to be sure
         if isinstance(ezid_result, str):

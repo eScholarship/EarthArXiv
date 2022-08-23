@@ -17,7 +17,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.template.loader import render_to_string
 from utils.logger import get_logger
-
+from utils import setting_handler
 
 logger = get_logger(__name__)
 
@@ -91,8 +91,38 @@ class EzidHTTPErrorProcessor(urlreq.HTTPErrorProcessor):
         return my_return
     https_response = http_response
 
-def send_create_request(data, shoulder, username, password, endpoint_url):
+def send_create_request(data, id, username, password, endpoint_url):
     ''' sends a create request to EZID '''
+    method = "PUT"
+    path = 'id/doi:{}'.format(encode(id))
+    request_url = f"{endpoint_url}/{path}"
+
+    opener = urlreq.build_opener(EzidHTTPErrorProcessor())
+    ezid_handler = urlreq.HTTPBasicAuthHandler()
+    ezid_handler.add_password("EZID", endpoint_url, username, password)
+    opener.add_handler(ezid_handler)
+
+    request = urlreq.Request(request_url)
+    request.get_method = lambda: method
+    request.add_header("Content-Type", "text/plain; charset=UTF-8")
+    request.data = data.encode("UTF-8")
+
+    try:
+        connection = opener.open(request)
+        response = connection.read()
+        return response.decode("UTF-8")
+
+    except urlreq.HTTPError as ezid_error:
+        #print("%d %s\n" % (ezid_error.code, ezid_error.msg))
+        if ezid_error.fp is not None:
+            response = ezid_error.fp.read().decode("utf-8")
+            if not response.endswith("\n"):
+                response += "\n"
+            #print(response)
+        return response
+
+def send_mint_request(data, shoulder, username, password, endpoint_url):
+    ''' sends a mint request to EZID '''
     method = "POST"
     path = 'shoulder/' + encode(shoulder)
 
@@ -155,7 +185,7 @@ def encode(txt):
     ''' encode a text string '''
     return quote(txt, ":/")
 
-def mint_doi_via_ezid(ezid_config, ezid_metadata):
+def mint_doi_via_ezid(ezid_config, ezid_metadata, template):
     ''' Sends a mint request for the specified config, using the provided data '''
     # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
     # ezid_data dicitionary contains values for the following keys: target_url, group_title, contributors, title, published_date, accepted_date
@@ -173,8 +203,6 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
             logger.error('invalid URL, published_doi: %s for preprint: %s', ezid_metadata.get('published_doi'), ezid_metadata.get('target_url'))
             del ezid_metadata['published_doi'] # this is not a permanent deletion
 
-
-    template = 'ezid/posted_content.xml'
     template_context = ezid_metadata
     crossref_template = render_to_string(template, template_context)
 
@@ -194,10 +222,10 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata):
     # print('\n\npayload:\n\n')
     # print(payload)
 
-    result = send_create_request(payload, ezid_config['shoulder'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
+    result = send_mint_request(payload, ezid_config['shoulder'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
     return result
 
-def update_doi_via_ezid(ezid_config, ezid_metadata):
+def update_doi_via_ezid(ezid_config, ezid_metadata, template):
     ''' Sends an update request for the specified config, using the provided data '''
     # ezid_config dictionary contains values for the following keys: shoulder, username, password, endpoint_url
     # ezid_metadata dicitionary contains values for the following keys: update_id, target_url, group_title, contributors, title, published_date, accepted_date
@@ -215,8 +243,6 @@ def update_doi_via_ezid(ezid_config, ezid_metadata):
             logger.error('invalid URL, published_doi: %s for preprint: %s', ezid_metadata.get('published_doi'), ezid_metadata.get('target_url'))
             del ezid_metadata['published_doi'] # this is not a permanent deletion
 
-
-    template = 'ezid/posted_content.xml'
     template_context = ezid_metadata
     crossref_template = render_to_string(template, template_context)
 
@@ -239,6 +265,32 @@ def update_doi_via_ezid(ezid_config, ezid_metadata):
     # result = send_create_request(payload, ezid_config['shoulder'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
     result = send_update_request(payload, ezid_metadata['update_id'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
     return result
+
+def create_doi_via_ezid(ezid_config, ezid_metadata, template):
+    ''' Sends a create request for the specified config, using the provided data '''
+
+    ezid_metadata['now'] = timezone.now()
+
+    template_context = ezid_metadata
+    crossref_template = render_to_string(template, template_context)
+
+    logger.debug(crossref_template)
+
+    metadata = crossref_template.replace('\n', '').replace('\r', '')
+
+    # uncomment this to validate the metadata payload
+    # print('\n\n')
+    # print('Using this metadata:')
+    # print('\n\n')
+    # print(metadata)
+
+    # build the payload
+    payload = 'crossref: ' + metadata + '\n_crossref: yes\n_profile: crossref\n_target: ' + ezid_metadata['target_url'] + '\n_owner: ' + ezid_config['owner']
+
+    # print('\n\npayload:\n\n')
+    # print(payload)
+
+    return send_create_request(payload, ezid_metadata['doi'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
 
 def preprint_publication(**kwargs):
     ''' hook script for the preprint_publication event '''
@@ -286,7 +338,7 @@ def preprint_publication(**kwargs):
     logger.debug('ezid_config: ' + json.dumps(ezid_config))
     logger.debug('ezid_metadata: '+ json.dumps(ezid_metadata))
 
-    ezid_result = mint_doi_via_ezid(ezid_config, ezid_metadata)
+    ezid_result = mint_doi_via_ezid(ezid_config, ezid_metadata, 'ezid/posted_content.xml')
 
     # if the ezid_result is a string, it's probably a success, check to be sure
     if isinstance(ezid_result, str):
@@ -313,3 +365,36 @@ def preprint_publication(**kwargs):
 
 #     logger.debug("preprint.id = " + preprint.id)
 #     logger.debug("request: " + request)
+
+def journal_publication(**kwargs):
+    logger.debug('>>> journal_publication called, register EZID DOI...')
+
+    article = kwargs.get('article')
+
+    # gather metadata required for minting a DOI via EZID
+    target_url = article.remote_url
+
+    # prepare two dictionaries to feed into the mint_doi_via_ezid function
+    ezid_config = { 'username': USERNAME,
+                    'password': PASSWORD,
+                    'endpoint_url': ENDPOINT_URL,
+                    'owner': setting_handler.get_setting('Identifiers', 'crossref_registrant', article.journal).processed_value,}
+    ezid_metadata = {'target_url': target_url,
+                     'article': article,
+                     'doi': article.get_doi(),
+                     'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name', article.journal).processed_value,
+                     'depositor_email': setting_handler.get_setting('Identifiers', 'crossref_email', article.journal).processed_value,
+                     'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant', article.journal).processed_value,}
+
+    ezid_result = create_doi_via_ezid(ezid_config, ezid_metadata, 'ezid/journal_content.xml')
+
+    if isinstance(ezid_result, str):
+        if ezid_result.startswith('success:'):
+            doi = re.search("doi:([0-9A-Z./]+)", ezid_result).group(1)
+            logger.debug('DOI successfully created: ' + doi)
+        else:
+            logger.error('EZID DOI creation failed for article.pk: {}...'.format(article.pk))
+            logger.error('ezid_result: ' + ezid_result)
+    else:
+        logger.error('EZID DOI creation failed for article.pk: {}...'.format(article.pk))
+        logger.error(ezid_result.msg)
