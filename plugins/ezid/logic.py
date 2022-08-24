@@ -262,7 +262,6 @@ def update_doi_via_ezid(ezid_config, ezid_metadata, template):
     # print('\n\npayload:\n\n')
     # print(payload)
 
-    # result = send_create_request(payload, ezid_config['shoulder'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
     result = send_update_request(payload, ezid_metadata['update_id'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
     return result
 
@@ -366,15 +365,9 @@ def preprint_publication(**kwargs):
 #     logger.debug("preprint.id = " + preprint.id)
 #     logger.debug("request: " + request)
 
-def journal_publication(**kwargs):
-    logger.debug('>>> journal_publication called, register EZID DOI...')
-
-    article = kwargs.get('article')
-
-    # gather metadata required for minting a DOI via EZID
+def get_journal_metadata(article):
     target_url = article.remote_url
 
-    # prepare two dictionaries to feed into the mint_doi_via_ezid function
     ezid_config = { 'username': USERNAME,
                     'password': PASSWORD,
                     'endpoint_url': ENDPOINT_URL,
@@ -385,16 +378,35 @@ def journal_publication(**kwargs):
                      'depositor_name': setting_handler.get_setting('Identifiers', 'crossref_name', article.journal).processed_value,
                      'depositor_email': setting_handler.get_setting('Identifiers', 'crossref_email', article.journal).processed_value,
                      'registrant': setting_handler.get_setting('Identifiers', 'crossref_registrant', article.journal).processed_value,}
+    return ezid_config, ezid_metadata
 
-    ezid_result = create_doi_via_ezid(ezid_config, ezid_metadata, 'ezid/journal_content.xml')
-
+def process_ezid_result(article, action, ezid_result):
     if isinstance(ezid_result, str):
         if ezid_result.startswith('success:'):
             doi = re.search("doi:([0-9A-Z./]+)", ezid_result).group(1)
-            logger.debug('DOI successfully created: ' + doi)
+            logger.debug('DOI successfully {}: '.format(action, doi))
+            return True, ezid_result
         else:
-            logger.error('EZID DOI creation failed for article.pk: {}...'.format(article.pk))
+            logger.error('EZID DOI {} failed for article.pk: {}...'.format(action, article.pk))
             logger.error('ezid_result: ' + ezid_result)
     else:
-        logger.error('EZID DOI creation failed for article.pk: {}...'.format(article.pk))
+        logger.error('EZID DOI {} failed for article.pk: {}...'.format(action, article.pk))
         logger.error(ezid_result.msg)
+
+    return False, ezid_result
+
+def update_journal_doi(article):
+    ezid_config, ezid_metadata = get_journal_metadata(article)
+
+    ezid_metadata['update_id'] = article.get_doi()
+
+    ezid_result = update_doi_via_ezid(ezid_config, ezid_metadata, 'ezid/journal_content.xml')
+
+    return process_ezid_result(article, "update", ezid_result)
+
+def register_journal_doi(article):
+    ezid_config, ezid_metadata = get_journal_metadata(article)
+
+    ezid_result = create_doi_via_ezid(ezid_config, ezid_metadata, 'ezid/journal_content.xml')
+
+    return process_ezid_result(article, "creation", ezid_result)
