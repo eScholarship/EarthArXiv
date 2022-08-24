@@ -19,4 +19,4 @@ class Command(BaseCommand):
         self.stdout.write("Attempting to mint a DOI for article_id={}".format(article_id))
 
         article = Article.objects.get(id=article_id)
-        logic.register_journal_doi(article)
+        logic.update_journal_doi(article)
