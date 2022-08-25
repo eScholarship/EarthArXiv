@@ -3,19 +3,19 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4.4.2"
     xsi:schemaLocation="http://www.crossref.org/schema/4.4.2 http://www.crossref.org/schemas/crossref4.4.2.xsd">
     <head>
-        <doi_batch_id>{{ batch_id }}</doi_batch_id>
-        <timestamp>{{ now|date:"Y-m-d" }}</timestamp>
+        <doi_batch_id>{{ article.journal.name|cut:" " }}_{{now|date:"Ymd"}}_{{ article.pk}}</doi_batch_id>
+        <timestamp>{{ now|date:"U" }}</timestamp>
         <depositor>
             <depositor_name>{{ depositor_name }}</depositor_name>
             <email_address>{{ depositor_email }}</email_address>
         </depositor>
-        <registrant>{{ owner }}</registrant>
+        <registrant>{{ registrant }}</registrant>
     </head>
     <body>
         <journal>
             <journal_metadata>
-                <full_title>{{ article.journal.title }}</full_title>
-                <abbrev_title>{{ article.journal.title }}</abbrev_title>
+                <full_title>{{ article.journal.name }}</full_title>
+                <abbrev_title>{{ article.journal.name }}</abbrev_title>
                 <issn media_type="electronic">{{ article.journal.issn }}</issn>
             </journal_metadata>
             <journal_issue>
@@ -31,12 +31,12 @@
             </journal_issue>
             <journal_article publication_type="full_text">
                 <titles>
-                    <title>{{ title|striptags|escape }}</title>
+                    <title>{{ article.title|striptags|escape }}</title>
                 </titles>
-                {% if article.frozenauthors_set.exists %}
+                {% if article.frozen_authors.exists %}
                 <contributors>
-                    {% for a in contributors %}
-                    <person_name contributor_role="author" sequence="first">
+                    {% for a in article.frozen_authors.all %}
+                    <person_name contributor_role="author" sequence="{% if a.order == 0 %}first{% else %}additional{% endif %}">
                         <given_name>{{ a.given_names }}</given_name>
                         <surname>{{ a.last_name }}</surname>
                         {% if a.orcid %}
@@ -46,14 +46,19 @@
                     {% endfor %}
                  </contributors>
                  {% endif %}
+                 {% if abstract %}
+                 <jats:abstract>
+                   <jats:p>{{ abstract|striptags|escape }}</jats:p>
+                 </jats:abstract>
+                 {% endif %}
                 <publication_date media_type="online">
                     <month>{{ article.date_published.month }}</month>
                     <day>{{ article.date_published.day }}</day>
                     <year>{{ article.date_published.year }}</year>
                 </publication_date>
                 <doi_data>
-                    <doi>{{ article.doi }}</doi>
-                    <resource>{{ article_url }}</resource>
+                    <doi>{{ article.get_doi }}</doi>
+                    <resource>{{ target_url }}</resource>
                 </doi_data>
             </journal_article>
         </journal>
