@@ -176,7 +176,7 @@ def send_update_request(data, update_id, username, password, endpoint_url):
     except urlreq.HTTPError as ezid_error:
         print("%d %s\n" % (ezid_error.code, ezid_error.msg))
         if ezid_error.fp is not None:
-            response = ezid_error.fp.read()
+            response = ezid_error.fp.read().decode("utf-8")
             if not response.endswith("\n"):
                 response += "\n"
             print(response)
