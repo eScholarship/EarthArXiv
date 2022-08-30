@@ -384,7 +384,7 @@ def process_ezid_result(article, action, ezid_result):
     if isinstance(ezid_result, str):
         if ezid_result.startswith('success:'):
             doi = re.search("doi:([0-9A-Z./]+)", ezid_result).group(1)
-            logger.debug('DOI successfully {}: '.format(action, doi))
+            logger.debug('DOI {} success: {}'.format(action, doi))
             return True, ezid_result
         else:
             logger.error('EZID DOI {} failed for article.pk: {}...'.format(action, article.pk))
