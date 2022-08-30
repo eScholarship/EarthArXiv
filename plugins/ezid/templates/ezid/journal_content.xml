@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<doi_batch xmlns="http://www.crossref.org/schema/4.4.2"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4.4.2"
-    xsi:schemaLocation="http://www.crossref.org/schema/4.4.2 http://www.crossref.org/schemas/crossref4.4.2.xsd">
+<doi_batch xmlns="http://www.crossref.org/schema/5.3.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="5.3.1"
+    xsi:schemaLocation="http://www.crossref.org/schema/5.3.1 http://www.crossref.org/schemas/crossref5.3.1.xsd">
     <head>
         <doi_batch_id>{{ article.journal.name|cut:" " }}_{{now|date:"Ymd"}}_{{ article.pk}}</doi_batch_id>
         <timestamp>{{ now|date:"U" }}</timestamp>
@@ -46,10 +46,10 @@
                     {% endfor %}
                  </contributors>
                  {% endif %}
-                 {% if abstract %}
-                 <jats:abstract>
-                   <jats:p>{{ abstract|striptags|escape }}</jats:p>
-                 </jats:abstract>
+                 {% if article.abstract %}
+                 <abstract xmlns="http://www.ncbi.nlm.nih.gov/JATS1">
+                    <p>{{ article.abstract|striptags|escape }}</p>
+                  </abstract>
                  {% endif %}
                 <publication_date media_type="online">
                     <month>{{ article.date_published.month }}</month>
