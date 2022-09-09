@@ -40,7 +40,7 @@
                         <given_name>{{ a.given_names }}</given_name>
                         <surname>{{ a.last_name }}</surname>
                         {% if a.orcid %}
-                        <ORCID>{{ a.orcid }}</ORCID>
+                        <ORCID>https://orcid.org/{{ a.orcid }}</ORCID>
                         {% endif %}              
                     </person_name>
                     {% endfor %}
