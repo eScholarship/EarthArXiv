@@ -19,12 +19,12 @@ from django.template.loader import render_to_string
 from utils.logger import get_logger
 from utils import setting_handler
 
+from .models import RepoEZIDSettings
+
 logger = get_logger(__name__)
 
-SHOULDER = settings.EZID_SHOULDER
 USERNAME = settings.EZID_USERNAME
 PASSWORD = settings.EZID_PASSWORD
-OWNER = settings.EZID_OWNER
 ENDPOINT_URL = settings.EZID_ENDPOINT_URL
 
 # disable to too many branches warning for PyLint
@@ -331,7 +331,9 @@ def preprint_publication(**kwargs):
     logger.debug('BEGIN MINTING REQUEST...')
 
     # prepare two dictionaries to feed into the mint_doi_via_ezid function
-    ezid_config = {'shoulder': SHOULDER, 'username': USERNAME, 'password': PASSWORD, 'endpoint_url': ENDPOINT_URL, 'owner': OWNER}
+
+    ezid_settings = RepoEZIDSettings.objects.get(repo=preprint.repository)
+    ezid_config = {'shoulder': ezid_settings.ezid_shoulder, 'username': USERNAME, 'password': PASSWORD, 'endpoint_url': ENDPOINT_URL, 'owner': ezid_settings.ezid_owner}
     ezid_metadata = {'target_url': target_url, 'group_title': group_title, 'contributors': contributors, 'title': title, 'published_date': published_date, 'accepted_date': accepted_date, 'published_doi': published_doi, 'abstract': abstract}
 
     logger.debug('ezid_config: ' + json.dumps(ezid_config))

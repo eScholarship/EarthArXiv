@@ -11,10 +11,10 @@ from repository import models
 from press import models as press_models
 # import pdb #uncomment this for troubleshooting
 
-SHOULDER = settings.EZID_SHOULDER
+from plugins.ezid.models import RepoEZIDSettings
+
 USERNAME = settings.EZID_USERNAME
 PASSWORD = settings.EZID_PASSWORD
-OWNER = settings.EZID_OWNER
 ENDPOINT_URL = settings.EZID_ENDPOINT_URL
 
 class Command(BaseCommand):
@@ -104,11 +104,13 @@ class Command(BaseCommand):
         #debug breakpoint, use to confirm the metadata gathered above
         # pdb.set_trace()
 
-        ezid_config = {'shoulder': SHOULDER,
+        ezid_settings = RepoEZIDSettings.objects.get(repo=repo)
+
+        ezid_config = {'shoulder': ezid_settings.ezid_shoulder,
                        'username': USERNAME,
                        'password': PASSWORD,
                        'endpoint_url': ENDPOINT_URL,
-                       'owner': OWNER}
+                       'owner': ezid_settings.ezid_owner}
         ezid_metadata = {'update_id': preprint.preprint_doi,
                          'target_url': target_url,
                          'group_title': group_title,
