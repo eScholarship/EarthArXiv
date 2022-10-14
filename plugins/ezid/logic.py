@@ -330,7 +330,7 @@ def preprint_publication(**kwargs):
 
     # prepare two dictionaries to feed into the mint_doi_via_ezid function
 
-    ezid_settings = EZIDSettings.objects.get(repo=preprint.repository)
+    ezid_settings = RepoEZIDSettings.objects.get(repo=preprint.repository)
     ezid_config = {'shoulder': ezid_settings.ezid_shoulder,
                    'username': ezid_settings.ezid_username,
                    'password': ezid_settings.ezid_password,
