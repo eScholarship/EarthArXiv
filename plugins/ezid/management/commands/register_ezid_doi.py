@@ -4,17 +4,12 @@ Janeway Management command for registering DOIs for the EZID plugin
 
 import re
 from django.core.management.base import BaseCommand
-from django.conf import settings
 from plugins.ezid import logic as ezid
 from repository import models
 from press import models as press_models
 # import pdb #uncomment this for troubleshooting
 
-SHOULDER = settings.EZID_SHOULDER
-USERNAME = settings.EZID_USERNAME
-PASSWORD = settings.EZID_PASSWORD
-OWNER = settings.EZID_OWNER
-ENDPOINT_URL = settings.EZID_ENDPOINT_URL
+from plugins.ezid.models import RepoEZIDSettings
 
 class Command(BaseCommand):
     """ Takes a preprint ID and mints a DOI via EZID, if the DOI is not yet minted, AND if the preprint is accepted """
@@ -77,11 +72,13 @@ class Command(BaseCommand):
         #debug breakpoint, use to confirm the metadata gathered above
         # pdb.set_trace()
 
-        ezid_config = {'shoulder': SHOULDER,
-                       'username': USERNAME,
-                       'password': PASSWORD,
-                       'endpoint_url': ENDPOINT_URL,
-                       'owner': OWNER}
+        ezid_settings = RepoEZIDSettings.objects.get(repo=repo)
+
+        ezid_config = {'shoulder': ezid_settings.ezid_shoulder,
+                       'username': ezid_settings.ezid_username,
+                       'password': ezid_settings.ezid_password,
+                       'endpoint_url': ezid_settings.ezid_endpoint_url,
+                       'owner': ezid_settings.ezid_owner}
         ezid_metadata = {'target_url': target_url,
                          'group_title': group_title,
                          'contributors': contributors,

@@ -4,5 +4,5 @@ from plugins.ezid import views
 
 
 urlpatterns = [
-    url(r'^manager/$', views.manager, name='ezid_manager'),
+    url(r'^manager/$', views.ezid_manager, name='ezid_manager'),
 ]
