@@ -222,8 +222,7 @@ def mint_doi_via_ezid(ezid_config, ezid_metadata, template):
     # print('\n\npayload:\n\n')
     # print(payload)
 
-    result = send_mint_request(payload, ezid_config['shoulder'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
-    return result
+    return send_mint_request(payload, ezid_config['shoulder'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
 
 def update_doi_via_ezid(ezid_config, ezid_metadata, template):
     ''' Sends an update request for the specified config, using the provided data '''
@@ -262,8 +261,7 @@ def update_doi_via_ezid(ezid_config, ezid_metadata, template):
     # print('\n\npayload:\n\n')
     # print(payload)
 
-    result = send_update_request(payload, ezid_metadata['update_id'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
-    return result
+    return send_update_request(payload, ezid_metadata['update_id'], ezid_config['username'], ezid_config['password'], ezid_config['endpoint_url'])
 
 def create_doi_via_ezid(ezid_config, ezid_metadata, template):
     ''' Sends a create request for the specified config, using the provided data '''
@@ -332,8 +330,12 @@ def preprint_publication(**kwargs):
 
     # prepare two dictionaries to feed into the mint_doi_via_ezid function
 
-    ezid_settings = RepoEZIDSettings.objects.get(repo=preprint.repository)
-    ezid_config = {'shoulder': ezid_settings.ezid_shoulder, 'username': USERNAME, 'password': PASSWORD, 'endpoint_url': ENDPOINT_URL, 'owner': ezid_settings.ezid_owner}
+    ezid_settings = EZIDSettings.objects.get(repo=preprint.repository)
+    ezid_config = {'shoulder': ezid_settings.ezid_shoulder,
+                   'username': ezid_settings.ezid_username,
+                   'password': ezid_settings.ezid_password,
+                   'endpoint_url': ezid_settings.ezid_endpoint_url,
+                   'owner': ezid_settings.ezid_owner}
     ezid_metadata = {'target_url': target_url, 'group_title': group_title, 'contributors': contributors, 'title': title, 'published_date': published_date, 'accepted_date': accepted_date, 'published_doi': published_doi, 'abstract': abstract}
 
     logger.debug('ezid_config: ' + json.dumps(ezid_config))
