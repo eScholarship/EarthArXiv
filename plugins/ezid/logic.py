@@ -296,6 +296,13 @@ def preprint_publication(**kwargs):
     preprint = kwargs.get('preprint')
     request = kwargs.get('request')
 
+    # check to see if this preprint already has a DOI, if so, our job is done, do not try to make a new one
+    if preprint.preprint_doi:
+        logger.debug('preprint already has a DOI:')
+        logger.debug(preprint.preprint_doi)
+        logger.debug('No need to mint a new DOI, skipping.')
+        return None
+
     # gather metadata required for minting a DOI via EZID
     target_url = preprint.url
 
